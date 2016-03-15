@@ -1,0 +1,15 @@
+<menu
+    tools:context="info.krepsmethod.MainActivity"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/addMenuClick"
+        android:title="@string/Dodaj"
+        android:onClick="DodajAcivity"
+        />
+    <item
+        android:id="@+id/refreshMenuClick"
+        android:title="@string/referesh"
+        />
+</menu>

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">KrebsMethod: Paweł Kałasz</string>
+    <string name="action_settings">Settings</string>
+    <string name="Dodaj">Dodaj</string>
+    <string name="Usun">Usun</string>
+    <string name="getPolishWord">Podaj Polskie slowo</string>
+    <string name="getEnglishWord">Podaj Angielskie słowo</string>
+    <string name="Next">Dalej</string>
+    <string name="WprowadzAngielskieSlowo">Wprowadz Angielskie Slowo</string>
+    <string name="WprowadzPolskieSlowo">Wprowadz Polskie Slowo</string>
+    <string name="ZaladowanoNagranie">Załadowano nagranie</string>
+    <string name="referesh">Odswiez</string>
+</resources>
