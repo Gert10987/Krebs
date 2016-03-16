@@ -4,30 +4,22 @@ import android.app.Activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.database.Cursor;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,13 +35,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -68,9 +54,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
 
     Track track = new Track();
-    String sep = File.separator;
-    String newFolder = "KrebsFolderSound";
-    SimpleCursorAdapter listaAdapter;
     ImageView imagePlayButton;
     MediaPlayer mediaP = new MediaPlayer();
     MediaPlayer mediaE = new MediaPlayer();
@@ -82,6 +65,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     ListView list;
     TextView emptyList;
     ProgressBar PB;
+    int DurationFullAudio = 0, postLevelProgress = 1;
 
 
     // JSON Node names
@@ -96,15 +80,19 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         setContentView(R.layout.activity_main);
 
 
+
+
         Item_List = new ArrayList<HashMap<String, String>>();
         list = (ListView) findViewById(R.id.listView1);
+
+        PB = (ProgressBar) findViewById(R.id.progressBar);
+        PB.setVisibility(View.GONE);
+
+
 
         PD = new ProgressDialog(this);
         PD.setMessage("Loading.....");
         PD.setCancelable(false);
-
-
-        PB = (ProgressBar) findViewById(R.id.progressBar);
 
         emptyList = (TextView) findViewById(R.id.emptyList);// gdy lista jest pusta
         emptyList.setText(" ");
@@ -124,11 +112,40 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 String uP = "http://krebsmethod.cba.pl/PolishSound/" + idT + "polish.3gpp";
                 String uE = "http://krebsmethod.cba.pl/EnglishSound/" + idT + "english.3gpp";
 
-                playAudio(uP, uE);
+                if (PB.isShown() ||  postLevelProgress == DurationFullAudio) {
 
-                // connectToFTP(uP, uE);
-                mediaP = new MediaPlayer();
-                mediaE = new MediaPlayer();
+                    Toast.makeText(getApplicationContext(), "stop", Toast.LENGTH_SHORT).show();
+
+                    try {
+
+                        mediaE.stop();
+                        mediaP.stop();
+
+                        mediaP = new MediaPlayer();
+                        mediaE = new MediaPlayer();
+
+                        PB.setVisibility(View.GONE);
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                } else {
+
+                    try {
+
+                        progressBar();
+                        connectToFTP(uP, uE);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+
+
 
 
             }
@@ -392,17 +409,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     }
 
 
-    public void playAudioFromFTP(String idDownload) throws Exception {
-
-
-        // track.playSoundPolish(mediaP, );
-        //mediaP.release();
-        //track.playSoundEnglish(mediaE, uE);
-        //mediaE.release();
-
-
-    }
-
     public FTPClient connectToFTP(String uP, String uE) {
 
         FTPClient con = null;
@@ -414,6 +420,15 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
                 con.enterLocalPassiveMode(); // important!
                 con.setFileType(FTP.BINARY_FILE_TYPE);
+
+                try {
+                    track.playFromFTP(mediaP, uP, mediaE, uE);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                con.logout();
+                con.disconnect();
+
 
             }
 
@@ -429,32 +444,44 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     }
 
 
-    public void disconnectFTP(FTPClient con) throws IOException {
 
-        con.logout();
-        con.disconnect();
-
-    }
+    public void progressBar() {
 
 
-    public void playAudio(final String uP, final String uE) {
+        class Async extends AsyncTask<Integer, Integer, Void> {
 
 
-        class Async extends AsyncTask<Void, Integer, Void> {
+
 
             @Override
-            protected Void doInBackground(Void... params) {
+            protected Void doInBackground(Integer... params) {
 
-                publishProgress(((mediaP.getDuration() * 2) + mediaE.getDuration() * 2));
+                for (int count = 0; count < DurationFullAudio; count++) {
+                    try {
+                        Thread.sleep(100);
+                        publishProgress(count);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+
+
                 return null;
+
             }
 
             @Override
             protected void onPreExecute() {
 
-                connectToFTP(uP, uE);
+
+                DurationFullAudio = ((mediaP.getDuration() * 2) + (mediaE.getDuration() * 2));
+                PB.setVisibility(View.VISIBLE);
 
                 super.onPreExecute();
+
+
             }
 
             @Override
@@ -467,27 +494,17 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
 
-                try {
-                    track.playFromFTP(mediaP, uP, mediaE, uE);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                postLevelProgress = PB.getProgress();
 
-                try {
-                    disconnectFTP(connectToFTP("", ""));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+
+
 
             }
 
         }
 
         new Async().execute();
-    }
-
-    public void playExecute() {
-
     }
 
 
