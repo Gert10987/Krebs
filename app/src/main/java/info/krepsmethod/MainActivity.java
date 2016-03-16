@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -24,6 +25,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -79,6 +81,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     ListAdapter adapter;
     ListView list;
     TextView emptyList;
+    ProgressBar PB;
+
 
     // JSON Node names
     public static final String ITEM_ID = "id";
@@ -99,6 +103,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         PD.setMessage("Loading.....");
         PD.setCancelable(false);
 
+
+        PB = (ProgressBar) findViewById(R.id.progressBar);
+
         emptyList = (TextView) findViewById(R.id.emptyList);// gdy lista jest pusta
         emptyList.setText(" ");
 
@@ -113,9 +120,15 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 TextView idTextView = (TextView) view.findViewById(R.id.IdTextView); // pobranbie id z pola text view
                 String idT = idTextView.getText().toString();
 
-                Toast.makeText(getApplicationContext(), idT, Toast.LENGTH_SHORT).show();
 
-                connectToFTP(idT);
+                String uP = "http://krebsmethod.cba.pl/PolishSound/" + idT + "polish.3gpp";
+                String uE = "http://krebsmethod.cba.pl/EnglishSound/" + idT + "english.3gpp";
+
+                playAudio(uP, uE);
+
+                // connectToFTP(uP, uE);
+                mediaP = new MediaPlayer();
+                mediaE = new MediaPlayer();
 
 
             }
@@ -381,9 +394,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     public void playAudioFromFTP(String idDownload) throws Exception {
 
-        String uP = "http://krebsmethod.cba.pl/PolishSound/" + idDownload + "polish.3gpp";
-        String uE = "http://krebsmethod.cba.pl/EnglishSound/" + idDownload + "english.3gpp";
-        track.playSoundPolish(mediaP, uP);
+
+        // track.playSoundPolish(mediaP, );
         //mediaP.release();
         //track.playSoundEnglish(mediaE, uE);
         //mediaE.release();
@@ -391,7 +403,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     }
 
-    public FTPClient connectToFTP(String id) {
+    public FTPClient connectToFTP(String uP, String uE) {
 
         FTPClient con = null;
 
@@ -403,13 +415,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 con.enterLocalPassiveMode(); // important!
                 con.setFileType(FTP.BINARY_FILE_TYPE);
 
-                String uP = "http://krebsmethod.cba.pl/PolishSound/" + id + "polish.3gpp";
-                track.playSoundPolish(mediaP, uP);
-
-                con.logout();
-                con.disconnect();
             }
-
 
 
         } catch (Exception e) {
@@ -429,6 +435,62 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         con.disconnect();
 
     }
+
+
+    public void playAudio(final String uP, final String uE) {
+
+
+        class Async extends AsyncTask<Void, Integer, Void> {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                publishProgress(((mediaP.getDuration() * 2) + mediaE.getDuration() * 2));
+                return null;
+            }
+
+            @Override
+            protected void onPreExecute() {
+
+                connectToFTP(uP, uE);
+
+                super.onPreExecute();
+            }
+
+            @Override
+            protected void onProgressUpdate(Integer... values) {
+                super.onProgressUpdate(values);
+                PB.setProgress(values[0]);
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+
+                try {
+                    track.playFromFTP(mediaP, uP, mediaE, uE);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    disconnectFTP(connectToFTP("", ""));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }
+
+        new Async().execute();
+    }
+
+    public void playExecute() {
+
+    }
+
+
 }
 
 

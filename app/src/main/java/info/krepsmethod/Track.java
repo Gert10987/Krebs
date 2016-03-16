@@ -10,6 +10,7 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Toast;
@@ -17,11 +18,12 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Created by Paweł on 2016-02-10.
  */
 public class Track extends Activity {
-
 
 
     //****************** Klasa Track opowiedzialna za nagrywanie ,
@@ -37,13 +39,13 @@ public class Track extends Activity {
     String SoundInList;
 
 
-  //  Metoda rozpoczynajca nagranie
+    //  Metoda rozpoczynajca nagranie
 
     public void beginRecording() throws Exception {
 
         killMediaRecorder();
         File outFile = new File(OutputFile);
-        if(outFile.exists()) {
+        if (outFile.exists()) {
             outFile.delete();
         }
         recorder = new MediaRecorder();
@@ -65,6 +67,7 @@ public class Track extends Activity {
             recorder.stop();
         }
     }
+
     /*
 
     Kill record
@@ -103,10 +106,6 @@ public class Track extends Activity {
     }
 
 
-
-
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -115,62 +114,6 @@ public class Track extends Activity {
 
 
     }
-    /*
-
-    Metoda playSound do odtworzenia w liscie
-     */
-
-    protected void playSoundPolish(MediaPlayer PolishAudio, String url) throws Exception {
-
-           // killMediaPlayer(media);
-
-            PolishAudio.setDataSource(url);
-            //int waitTime = PolishAudio.getDuration();
-            PolishAudio.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            PolishAudio.prepare();
-            PolishAudio.start();
-           // wait(waitTime);
-
-    }
-
-    protected void playSoundEnglish(MediaPlayer EnglishAudio, String url) throws Exception {
-
-        // killMediaPlayer(media);
-
-        EnglishAudio.setDataSource(url);
-        final int waitTime = EnglishAudio.getDuration();
-        EnglishAudio.prepare();
-        EnglishAudio.setLooping(false); // setlooping ustawione na false, przekazuje wykonanie do setOnCompletionListener
-        EnglishAudio.start();
-
-        EnglishAudio.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
-
-            int liczbaPowtorzen = 0;// zmienna odpowidzialna za licze powtoren
-
-            @Override
-            public void onCompletion(MediaPlayer media) {
-
-                if (liczbaPowtorzen < 1) { //warunek ile ma byc powtorzen
-
-
-                    try {
-                        synchronized (this) {
-                            wait(waitTime);  // przerwa na samodzielne powtorzenie
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    media.start();
-                    liczbaPowtorzen++;
-                }
-            }
-
-        });
-
-    }
-
 
 
     protected void onDestroySound(MediaPlayer media) {
@@ -182,21 +125,95 @@ public class Track extends Activity {
     }
 
 
-    public void stopPlayingSound(MediaPlayer media) throws Exception{
+    public void stopPlayingSound(MediaPlayer media) throws Exception {
 
-                media.stop();
-
-
-
-        }
+        media.stop();
 
 
-    public void playFromFTP(){
+    }
+
+
+    public void playFromFTP
+            (final MediaPlayer PolishAudio, final String uP,
+             final MediaPlayer EnglishAudio, final String uE) throws Exception {
+
+
+        playSoundPolish(PolishAudio, uP); // odtworzenie Polskiego slowa
+
+        new Thread(new Runnable() { // utworzenie nowego watku
+            @Override
+            public void run() {
+
+                try {
+                    sleep(PolishAudio.getDuration() * 2); // przerwa na odtworzenie i powtorzenie poolskiego slowa
+                    playSoundEnglish(EnglishAudio, uE);// odegranie angioelskiego slwoa
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+
+    protected int playSoundPolish(MediaPlayer PolishAudio, String uP) throws Exception {
+
+        // killMediaPlayer(media);
+
+
+        PolishAudio.setDataSource(uP);
+        PolishAudio.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        PolishAudio.prepare();
+        PolishAudio.start();
+
+
+        return PolishAudio.getDuration();
 
     }
 
 
+    protected void playSoundEnglish(MediaPlayer EnglishAudio, String uE) throws Exception {
+
+        // killMediaPlayer(media);
+
+        EnglishAudio.setDataSource(uE);
+        EnglishAudio.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        EnglishAudio.prepare();
+        EnglishAudio.setLooping(false); // setlooping ustawione na false, przekazuje wykonanie do setOnCompletionListener
+        EnglishAudio.start();
+
+        EnglishAudio.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+
+            int liczbaPowtorzen = 0;// zmienna odpowidzialna za licze powtoren
+
+
+            @Override
+            public void onCompletion(MediaPlayer EnglishAudio) {
+
+                if (liczbaPowtorzen < 1) { //warunek ile ma byc powtorzen
+
+
+                    try {
+                        synchronized (this) {
+                            wait(EnglishAudio.getDuration());  // przerwa na samodzielne powtorzenie
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    EnglishAudio.start();
+                    liczbaPowtorzen++;
+                }
+            }
+
+
+        });
+
+
     }
+
+
+}
 
 
 
