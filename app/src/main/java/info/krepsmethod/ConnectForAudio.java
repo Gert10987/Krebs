@@ -76,10 +76,10 @@ public class ConnectForAudio implements Runnable {
 
 
     public int playFromFTP(MediaPlayer mediaP, final MediaPlayer mediaE, String uP, final String uE) throws Exception {
-
-//        mediaP.setDataSource(uP);
-       // mediaP.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaP.prepareAsync();
+        mediaP.reset();
+        mediaP.setDataSource(uP);
+        mediaP.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaP.prepare();
         durPol = mediaP.getDuration();
         mediaP.start();// odtworzenie Polskiego slowa
 
@@ -106,9 +106,9 @@ public class ConnectForAudio implements Runnable {
 
 
     protected int playSoundEnglish(MediaPlayer mediaE, final String uE) throws Exception {
-
-        //  mediaE.setDataSource(uE);
-      //  mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaE.reset();
+        mediaE.setDataSource(uE);
+        mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaE.prepare();
         mediaE.setLooping(false); // setlooping ustawione na false, przekazuje wykonanie do setOnCompletionListener
         mediaE.start();

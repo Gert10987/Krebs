@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         mediaP = new MediaPlayer();
                         mediaE = new MediaPlayer();
+                        PB.setProgress(0);
 
 
                     } catch (Exception e) {
@@ -155,17 +156,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         run(uP, uE);
 
-                        launcherDialogBar(d(beforePlayE(mediaE,uE), beforPlayP(mediaP, uP)));
+                        launcherDialogBar(d(beforePlayE(mediaE, uE), beforPlayP(mediaP, uP)));
 
 
-                        /*ConnectForAudio connectForAudio = new
+                        ConnectForAudio connectForAudio = new
                                 ConnectForAudio(mediaP, mediaE, uP, uE);
 
-                        connectForAudio.run();*/
+                        connectForAudio.run();
 
 
                         mediaP = new MediaPlayer();
                         mediaE = new MediaPlayer();
+
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -455,9 +457,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         e.printStackTrace();
                     }
 
-                    if (PB.getProgress() == PB.getMax()) {
+                    if (PB.getProgress() == DurationFullAudio) {
                         PB.dismiss();
                         PB.setProgress(0);
+                        PB.incrementProgressBy(0);
 
                     }
 
@@ -465,6 +468,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
 
         }).start();
+
+        PB.setProgress(0);
+        PB.incrementProgressBy(0);
     }
 
 
