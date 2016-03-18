@@ -136,7 +136,7 @@ public class CreatePolishActivity extends Activity {
                     track.stopRecording();
                     Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
                     zaladowanoNagranie.setText("zaladowano nagranie");
-                    track.onDestroy();
+
 
 
                 } catch (Exception e) {

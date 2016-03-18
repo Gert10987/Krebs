@@ -116,7 +116,7 @@ public class CreateEnglishActivity extends Activity {
                     renameFileAudio(autoIncNextVal);
                     insertAudio(autoIncNextVal);
                     insertText();
-                    deleteFromSD(autoIncNextVal);
+
 
 
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -151,7 +151,8 @@ public class CreateEnglishActivity extends Activity {
                     track.stopRecording();
                     Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show();
                     zaladowanoNagranie.setText("zaladowano nagranie");
-                    track.onDestroy();
+                //Api 21    track.onDestroy();
+
 
 
                 } catch (Exception e) {
@@ -174,10 +175,10 @@ public class CreateEnglishActivity extends Activity {
 
     public void insertText() {
 
-        /*
-        String Request : wyslanie zmiennej do Skryptu PHP
 
-         */
+        //String Request : wyslanie zmiennej do Skryptu PHP
+
+
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -192,7 +193,6 @@ public class CreateEnglishActivity extends Activity {
                         Toast.makeText(getApplicationContext(), // Toast
                                 "Data Inserted Successfully",
                                 Toast.LENGTH_SHORT).show();
-
                     }
                 },
                 /*
@@ -222,9 +222,7 @@ public class CreateEnglishActivity extends Activity {
                 params.put("PolishWordText", polishWordText);
                 params.put("EnglishWordText", englishWordText);
 
-
                 return params;
-
 
             }
 
@@ -237,42 +235,49 @@ public class CreateEnglishActivity extends Activity {
 
     }
 
-    public void insertAudio(int id) {
+    public void insertAudio(final int id) {
 
 
-        FTPClient con = null;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        try {
-            con = new FTPClient();
-            con.connect("95.211.80.5");
+                try {
+                    FTPClient con = null;
+                    con = new FTPClient();
+                    con.connect("95.211.80.5");
 
-            if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
-                con.enterLocalPassiveMode(); // important!
-                con.setFileType(FTP.BINARY_FILE_TYPE);
-                String pData = "/sdcard/KrebsFolderSound/" + id + "polishSound.3gpp";
-                String eData = "/sdcard/KrebsFolderSound/" + id + "englishSound.3gpp";
+                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+                        con.enterLocalPassiveMode(); // important!
+                        con.setFileType(FTP.BINARY_FILE_TYPE);
+                        String pData = "/sdcard/KrebsFolderSound/" + id + "polishSound.3gpp";
+                        String eData = "/sdcard/KrebsFolderSound/" + id + "englishSound.3gpp";
 
-                FileInputStream pIn = new FileInputStream(new File(pData));
-                boolean pResult = con.storeFile("/polishSound/" + id + "polish.3gpp", pIn);
+                        FileInputStream pIn = new FileInputStream(new File(pData));
+                        boolean pResult = con.storeFile("/polishSound/" + id + "polish.3gpp", pIn);
 
-                FileInputStream eIn = new FileInputStream(new File(eData));
-                boolean eResult = con.storeFile("/englishSound/" + id + "english.3gpp", eIn);
-                pIn.close();
-                eIn.close();
-                if (pResult && eResult) Log.v("upload result", "succeeded");
-                con.logout();
-                con.disconnect();
+                        FileInputStream eIn = new FileInputStream(new File(eData));
+                        boolean eResult = con.storeFile("/englishSound/" + id + "english.3gpp", eIn);
+                        pIn.close();
+                        eIn.close();
+                        if (pResult && eResult) Log.v("upload result", "succeeded");
+                        con.logout();
+                        con.disconnect();
 
-                deleteFromSD(id);
+                        deleteFromSD(id);
+
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
 
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        }).start();
+
 
     }
-
 
     public void deleteFromSD(int id) {
 

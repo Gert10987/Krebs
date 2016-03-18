@@ -4,9 +4,17 @@ import android.app.Activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -41,7 +49,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-public class MainActivity extends Activity implements AdapterView.OnItemClickListener {
+import static java.lang.Thread.sleep;
+
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     /*
 
@@ -58,36 +68,38 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     MediaPlayer mediaP = new MediaPlayer();
     MediaPlayer mediaE = new MediaPlayer();
 
+
     String url = "http://krebsmethod.cba.pl/read.php";
     ArrayList<HashMap<String, String>> Item_List;
     ProgressDialog PD;
     ListAdapter adapter;
     ListView list;
     TextView emptyList;
-    ProgressBar PB;
-    int DurationFullAudio = 0, postLevelProgress = 1;
+    ProgressDialog PB;
+
+    int DurationFullAudioa = 0, postLevelProgress = 1;
+    Handler updateBarHandler;
 
 
     // JSON Node names
     public static final String ITEM_ID = "id";
     public static final String POLISH_WORD = "PolishWordText";
     public static final String ENGLISH_WORD = "EnglishWordText";
+    private MediaPlayer mediaPlayer;
+    private int durPol;
+    private int durEn;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
 
         Item_List = new ArrayList<HashMap<String, String>>();
         list = (ListView) findViewById(R.id.listView1);
-
-        PB = (ProgressBar) findViewById(R.id.progressBar);
-        PB.setVisibility(View.GONE);
-
 
 
         PD = new ProgressDialog(this);
@@ -112,7 +124,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 String uP = "http://krebsmethod.cba.pl/PolishSound/" + idT + "polish.3gpp";
                 String uE = "http://krebsmethod.cba.pl/EnglishSound/" + idT + "english.3gpp";
 
-                if (PB.isShown() ||  postLevelProgress == DurationFullAudio) {
+                if (DurationFullAudioa == 1) {
 
                     Toast.makeText(getApplicationContext(), "stop", Toast.LENGTH_SHORT).show();
 
@@ -124,8 +136,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                         mediaP = new MediaPlayer();
                         mediaE = new MediaPlayer();
 
-                        PB.setVisibility(View.GONE);
-
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -135,8 +145,27 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
                     try {
 
-                        progressBar();
-                        connectToFTP(uP, uE);
+                    /*    ConnectForDur connectForDur = new
+                                ConnectForDur(mediaE, mediaP, uP, uE);
+
+                        connectForDur.run();
+
+
+                        int x = connectForDur.get();*/
+
+                        run(uP, uE);
+
+                        launcherDialogBar(d(beforePlayE(mediaE,uE), beforPlayP(mediaP, uP)));
+
+
+                        /*ConnectForAudio connectForAudio = new
+                                ConnectForAudio(mediaP, mediaE, uP, uE);
+
+                        connectForAudio.run();*/
+
+
+                        mediaP = new MediaPlayer();
+                        mediaE = new MediaPlayer();
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -144,46 +173,41 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 }
 
 
-
-
-
-
             }
         });
 
     }
 
-    // tworzenie menu
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-
+        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
         return true;
     }
 
-    // obsluga przyciskow menu
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.addMenuClick) {
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
 
             Intent intent = new Intent(getApplicationContext(), CreatePolishActivity.class);
             startActivity(intent);
-
-        } else {
-
-            Intent i = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(i);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    // tworzenie menu
+
+
+    // obsluga przyciskow menu
+
 
     // KONIEC METODY ON CREATE********************************************
 
@@ -409,52 +433,151 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     }
 
 
-    public FTPClient connectToFTP(String uP, String uE) {
+    public void launcherDialogBar(final int DurationFullAudio) {
 
-        FTPClient con = null;
 
-        try {
-            con = new FTPClient();
-            con.connect("95.211.80.5");
+        PB = new ProgressDialog(MainActivity.this);
+        PB.setMessage("Odtwaraznie");
+        PB.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        setProgress(0);
+        PB.setMax(DurationFullAudio);
+        PB.show();
 
-            if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
-                con.enterLocalPassiveMode(); // important!
-                con.setFileType(FTP.BINARY_FILE_TYPE);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (PB.getProgress() < DurationFullAudio) {
+
+                    try {
+                        sleep(1000);
+                        PB.incrementProgressBy(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (PB.getProgress() == PB.getMax()) {
+                        PB.dismiss();
+                        PB.setProgress(0);
+
+                    }
+
+                }
+            }
+
+        }).start();
+    }
+
+
+    int i;
+
+    public void run(final String uP, final String uE) {
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
                 try {
-                    track.playFromFTP(mediaP, uP, mediaE, uE);
+
+                    FTPClient con = null;
+                    MediaPlayer e = new MediaPlayer();
+                    MediaPlayer p = new MediaPlayer();
+
+                    con = new FTPClient();
+                    con.connect("95.211.80.5");
+
+                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+                        con.enterLocalPassiveMode(); // important!
+                        con.setFileType(FTP.BINARY_FILE_TYPE);
+
+                        try {
+
+
+                            beforePlayE(e, uE);
+                            beforPlayP(p, uP);
+                            //d(beforePlayE(e, uE), beforPlayP(p, uP));
+
+
+                        } catch (Exception ee) {
+                            ee.printStackTrace();
+                        }
+
+
+                        con.logout();
+                        con.disconnect();
+
+                    }
+
+
                 } catch (Exception e) {
+                    Log.v("download result", "failed");
                     e.printStackTrace();
                 }
-                con.logout();
-                con.disconnect();
 
 
             }
-
-
-        } catch (Exception e) {
-            Log.v("download result", "failed");
-            e.printStackTrace();
-        }
-
-        return con;
+        }).start();
 
 
     }
 
+    public int get() {
+
+        return i;
+
+    }
 
 
-    public void progressBar() {
+    public int d(int durEn, int durPol) {
+
+        int x = 0;
+
+        x = ((((durEn + durPol) * 2) + durEn) / 100);
+
+        return x;
+
+    }
+
+    public int beforPlayP(MediaPlayer mediaP, String uP) throws IOException {
+
+
+        mediaP.setDataSource(uP);
+        mediaP.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaP.prepare();
+        durPol = mediaP.getDuration();
+        return durPol;
+
+    }
+
+    public int beforePlayE(MediaPlayer mediaE, String uE) throws IOException {
+
+
+        mediaE.setDataSource(uE);
+        mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaE.prepare();
+        durEn = mediaE.getDuration();
+        return durEn;
+
+    }
+
+
+}
+
+
+
+
+
+
+
+   /* public void progressBar() {
 
 
         class Async extends AsyncTask<Integer, Integer, Void> {
 
-
-
-
             @Override
             protected Void doInBackground(Integer... params) {
+
+
 
                 for (int count = 0; count < DurationFullAudio; count++) {
                     try {
@@ -467,7 +590,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 }
 
 
-
                 return null;
 
             }
@@ -476,8 +598,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             protected void onPreExecute() {
 
 
-                DurationFullAudio = ((mediaP.getDuration() * 2) + (mediaE.getDuration() * 2));
+
                 PB.setVisibility(View.VISIBLE);
+                PB.setProgress(1);
 
                 super.onPreExecute();
 
@@ -498,17 +621,15 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
 
 
-
-
             }
 
         }
 
         new Async().execute();
-    }
+    }*/
 
 
-}
+
 
 
 

@@ -29,13 +29,11 @@ public class Track extends Activity {
     //****************** Klasa Track opowiedzialna za nagrywanie ,
     // odtwarzanie nagranTworzenie zmiennych
 
-
+    int durPol;
+    int durEn;
     private MediaPlayer mediaPlayer;
-
     private MediaRecorder recorder;
-
     String OutputFile;
-
     String SoundInList;
 
 
@@ -65,6 +63,7 @@ public class Track extends Activity {
     protected void stopRecording() throws Exception {
         if (recorder != null) {
             recorder.stop();
+            recorder.release();
         }
     }
 
@@ -133,83 +132,98 @@ public class Track extends Activity {
     }
 
 
-    public void playFromFTP
-            (final MediaPlayer PolishAudio, final String uP,
-             final MediaPlayer EnglishAudio, final String uE) throws Exception {
+    public int playFromFTP(String uP, final String uE) throws Exception {
 
 
-        playSoundPolish(PolishAudio, uP); // odtworzenie Polskiego slowa
+        mediaPlayer.setDataSource(uP);
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaPlayer.prepare();
+        durPol = mediaPlayer.getDuration();
+
+        mediaPlayer.start();// odtworzenie Polskiego slowa
+       // mediaPlayer.release();
 
         new Thread(new Runnable() { // utworzenie nowego watku
             @Override
             public void run() {
 
+
                 try {
-                    sleep(PolishAudio.getDuration() * 2); // przerwa na odtworzenie i powtorzenie poolskiego slowa
-                    playSoundEnglish(EnglishAudio, uE);// odegranie angioelskiego slwoa
+                    sleep(durPol * 2); // przerwa na odtworzenie i powtorzenie poolskiego slowa
+                    durEn = playSoundEnglish(uE);// odegranie angioelskiego slwoa
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }).start();
 
+
+        return ((durPol + durEn));
+
     }
 
-    protected int playSoundPolish(MediaPlayer PolishAudio, String uP) throws Exception {
+    protected int playSoundPolish(String uP) throws Exception {
 
         // killMediaPlayer(media);
 
 
-        PolishAudio.setDataSource(uP);
-        PolishAudio.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        PolishAudio.prepare();
-        PolishAudio.start();
+        return mediaPlayer.getDuration();
 
-
-        return PolishAudio.getDuration();
 
     }
 
 
-    protected void playSoundEnglish(MediaPlayer EnglishAudio, String uE) throws Exception {
+    protected int playSoundEnglish(String uE) throws Exception {
 
-        // killMediaPlayer(media);
+       // mediaPlayer.release();
 
-        EnglishAudio.setDataSource(uE);
-        EnglishAudio.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        EnglishAudio.prepare();
-        EnglishAudio.setLooping(false); // setlooping ustawione na false, przekazuje wykonanie do setOnCompletionListener
-        EnglishAudio.start();
+        mediaPlayer.setDataSource(uE);
 
-        EnglishAudio.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaPlayer.prepare();
 
+        mediaPlayer.setLooping(false); // setlooping ustawione na false, przekazuje wykonanie do setOnCompletionListener
+        mediaPlayer.start();
 
-            int liczbaPowtorzen = 0;// zmienna odpowidzialna za licze powtoren
-
-
+        new Thread(new Runnable() {
             @Override
-            public void onCompletion(MediaPlayer EnglishAudio) {
+            public void run() {
 
-                if (liczbaPowtorzen < 1) { //warunek ile ma byc powtorzen
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
 
-                    try {
-                        synchronized (this) {
-                            wait(EnglishAudio.getDuration());  // przerwa na samodzielne powtorzenie
+                    int liczbaPowtorzen = 0;// zmienna odpowidzialna za licze powtoren
+                    int dur = 0;
+
+                    @Override
+                    public void onCompletion(MediaPlayer EnglishAudio) {
+
+
+                        if (liczbaPowtorzen < 1) { //warunek ile ma byc powtorzen
+
+
+                            try {
+                                synchronized (this) {
+                                    Thread.sleep(EnglishAudio.getDuration());  // przerwa na samodzielne powtorzenie
+                                }
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            EnglishAudio.start();
+                            liczbaPowtorzen++;
                         }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
-                    EnglishAudio.start();
-                    liczbaPowtorzen++;
-                }
+
+
+                });
+
             }
+        }).start();
 
 
-        });
-
-
+        return mediaPlayer.getDuration();
     }
 
 
