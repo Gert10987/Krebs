@@ -4,8 +4,10 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.util.Log;
 
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFileFilter;
 
 import static java.lang.Thread.sleep;
 
@@ -84,6 +86,49 @@ public class ConnectForAudio implements Runnable {
     }
 
 
+    public void runInLearn() {
+
+
+
+                try {
+
+                    FTPClient con = null; // Utworzenie zmiennej do polaczenia
+                    con = new FTPClient();
+                    con.connect("95.211.80.5"); // ustawienie adresu FTP
+
+                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+                        con.enterLocalPassiveMode(); // ustawienie passiveMode
+                        con.setFileType(FTP.BINARY_FILE_TYPE); // typ Plikow Binarny
+
+                        try {
+
+                            playFromFTP(mediaP, mediaE, uP, uE); //wywolanie metody playFromFTP
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace(); //wyjatki
+                        }
+                        con.logout(); // wylogowanie z FTP
+                        con.disconnect(); // Rozlacznie z FTP
+
+                    }
+
+
+                } catch (Exception e) { // Wyjatki
+                    Log.v("download result", "failed"); // LOG
+                    e.printStackTrace();
+                }
+
+
+            }
+
+
+
+
+
+
+
+
     /*
     Metoda playFromFTP do Odtwaznia Audio bezposrednio z FTP , przyjmuje 4 zmienne,
   / Wykorzystuje metode playSoundEnglish   ***************************************
@@ -119,7 +164,7 @@ public class ConnectForAudio implements Runnable {
     /*
     Metoda play Sound English przyjmuje dwie zmienne odgrywa dwa razy angielskie slowa**************
     */
-    protected void playSoundEnglish(MediaPlayer mediaE, final String uE) throws Exception {
+    protected void playSoundEnglish(final MediaPlayer mediaE, final String uE) throws Exception {
         mediaE.reset();
         mediaE.setDataSource(uE);
         mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -148,13 +193,15 @@ public class ConnectForAudio implements Runnable {
                         public void run() {
                             try {
                                 {
-                                    sleep(E.getDuration());  // przerwa na samodzielne powtorzenie
+
+                                    sleep(mediaE.getDuration());  // przerwa na samodzielne powtorzenie
+                                    mediaE.start();
                                 }
 
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            E.start();
+
                             liczbaPowtorzen++;
 
                         }

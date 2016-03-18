@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     ListView list;
     TextView emptyList;
     ProgressDialog PB; // ProgressDialog progress odtwarzania
+    ArrayList<String> xc = new ArrayList<String>();
 
     // JSON Node names
     public static final String ITEM_ID = "id";
@@ -99,9 +100,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         emptyList = (TextView) findViewById(R.id.emptyList);// gdy lista jest pusta
 
-        ReadDataFromDB();// metoda zczytujaca naze z bazy danych i ustawia je na liscie********
+        xc = ReadDataFromDB();// metoda zczytujaca naze z bazy danych i ustawia je na liscie********
 
         registerForContextMenu(list); // Pierwszy etap tworznia menu context
+
+
 
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -181,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (id == R.id.nauka) {
 
             Intent intent = new Intent(getApplicationContext(), LearnActivity.class);
+            intent.putExtra("list", xc);
             startActivity(intent);
             return true;
 
@@ -253,7 +257,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     /*
     Metoda zczytywania danych z bazy danych textowych i umiesczmania ich na liscie
      */
-    public void ReadDataFromDB() {
+    public ArrayList ReadDataFromDB() {
+
+
+        final ArrayList x = new ArrayList<String>();
+
         PD.show();
         //Nowy obiekt jsona
         JsonObjectRequest jreq = new JsonObjectRequest(Request.Method.GET, url,
@@ -268,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                 JSONArray ja = response.getJSONArray("orders"); // pobranie tablicy jsonow
 
 
+
                                 //umiesczenie jsonow w lisice i zrobeinie ich do stringa
                                 for (int i = 0; i < ja.length(); i++) {
 
@@ -278,6 +287,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                     item.put(ENGLISH_WORD, jobj.getString(ENGLISH_WORD));
 
                                     Item_List.add(item);
+
+                                    x.add(jobj.getString(ITEM_ID));
 
 
                                 } // for loop ends
@@ -308,6 +319,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Singleton.getInstance().addToReqQueue(jreq);
 
 
+        return x;
     }
 
     /*
@@ -396,6 +408,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
      */
     public void setList() {
 
+
         String[] from = {ITEM_ID,
                 POLISH_WORD,
                 ENGLISH_WORD};
@@ -403,6 +416,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int[] to = {R.id.IdTextView,
                 R.id.textViewPolishWord,
                 R.id.textViewEnglishWord};
+
+
 
 
         adapter = new SimpleAdapter(getApplicationContext(),
@@ -419,7 +434,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         list.setAdapter(adapter);
 
+
+
         PD.dismiss();
+
+
 
 
     }

@@ -2,6 +2,7 @@ package info.krepsmethod;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import org.apache.commons.net.ftp.FTP;
@@ -88,6 +89,55 @@ public class ConnectForDuration implements Runnable {
 
     }
 
+   public void runInLearn() {
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+
+                    FTPClient con = null;
+                    MediaPlayer e = new MediaPlayer();
+                    MediaPlayer p = new MediaPlayer();
+
+                    con = new FTPClient();
+                    con.connect("95.211.80.5");
+
+                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+                        con.enterLocalPassiveMode(); // important!
+                        con.setFileType(FTP.BINARY_FILE_TYPE);
+
+                        try {
+
+                            beforePlayE(e, uE);
+                            beforePlayP(p, uP);
+
+
+                        } catch (Exception ee) {
+                            ee.printStackTrace();
+                        }
+
+
+                        con.logout();
+                        con.disconnect();
+
+                    }
+
+
+                } catch (Exception e) {
+                    Log.v("download result", "failed");
+                    e.printStackTrace();
+                }
+
+
+            }
+        }).start();
+
+
+    }
+
 
     //Metoda wzor na dlugosc nagran dla ProgressDialog'a zwraca Maxa progressDialoga
     public int AudioLenght(int durEn, int durPol) {
@@ -95,6 +145,16 @@ public class ConnectForDuration implements Runnable {
         int x = 0;
 
         x = ((((durPol) * 2) + (durEn) * 3) / 100);
+
+        return x;
+
+    }
+
+    public int AudioLenghtForLearn(int durEn, int durPol){
+
+        int x = 0;
+
+        x = ((((durPol) * 2) + (durEn) * 4));
 
         return x;
 
@@ -139,6 +199,13 @@ public class ConnectForDuration implements Runnable {
 
         return AudioLenght(beforePlayE(mediaE, uE), beforePlayP(mediaP, uP));
 
+
+    }
+
+    public int getFullAudioToLearn() throws IOException {
+
+
+        return AudioLenghtForLearn(beforePlayE(mediaE, uE), beforePlayP(mediaP, uP));
 
     }
 

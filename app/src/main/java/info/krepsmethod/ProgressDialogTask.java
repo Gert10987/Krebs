@@ -43,6 +43,7 @@ public class ProgressDialogTask implements Runnable {
     public void run() {
 
         PB.setMessage("Odtwaraznie: ");
+        PB.setCancelable(false);
         PB.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         PB.setProgress(0);
         PB.setMax(DurationFullAudio);
