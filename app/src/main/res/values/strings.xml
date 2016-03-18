@@ -10,4 +10,7 @@
     <string name="WprowadzPolskieSlowo">Wprowadz Polskie Slowo</string>
     <string name="ZaladowanoNagranie">Załadowano nagranie</string>
     <string name="referesh">Odswiez</string>
+    <string name="Nauka">Nauka</string>
+    <string name="Odswiez">Odswiez</string>
+    <string name="title_activity_learn">LearnActivity</string>
 </resources>

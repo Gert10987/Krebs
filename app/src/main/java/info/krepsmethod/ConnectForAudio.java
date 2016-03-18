@@ -110,31 +110,45 @@ public class ConnectForAudio implements Runnable {
         mediaE.setDataSource(uE);
         mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaE.prepare();
+        mediaE.getDuration();
         mediaE.setLooping(false); // setlooping ustawione na false, przekazuje wykonanie do setOnCompletionListener
         mediaE.start();
+
+
+
         mediaE.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
 
             int liczbaPowtorzen = 0;// zmienna odpowidzialna za licze powtoren
 
 
+
+
             @Override
-            public void onCompletion(MediaPlayer E) {
+
+            public void onCompletion(final MediaPlayer E) {
 
 
                 if (liczbaPowtorzen < 1) { //warunek ile ma byc powtorzen
 
 
-                    try {
-                        synchronized (this) {
-                            wait(E.getDuration());  // przerwa na samodzielne powtorzenie
-                        }
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                {
+                                    sleep(E.getDuration());  // przerwa na samodzielne powtorzenie
+                                }
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    E.start();
-                    liczbaPowtorzen++;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            E.start();
+                            liczbaPowtorzen++;
+
+                        }
+                    }).start();
+
                 }
             }
 

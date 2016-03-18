@@ -27,10 +27,7 @@ public class Track extends Activity {
 
 
     //****************** Klasa Track opowiedzialna za nagrywanie ,
-    // odtwarzanie nagranTworzenie zmiennych
 
-    int durPol;
-    int durEn;
     private MediaPlayer mediaPlayer;
     private MediaRecorder recorder;
     String OutputFile;
@@ -47,7 +44,7 @@ public class Track extends Activity {
             outFile.delete();
         }
         recorder = new MediaRecorder();
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         recorder.setOutputFile(OutputFile);
@@ -112,118 +109,6 @@ public class Track extends Activity {
         killMediaPlayer(mediaPlayer);
 
 
-    }
-
-
-    protected void onDestroySound(MediaPlayer media) {
-        super.onDestroy();
-        killMediaRecorder();
-        killMediaPlayer(media);
-
-
-    }
-
-
-    public void stopPlayingSound(MediaPlayer media) throws Exception {
-
-        media.stop();
-
-
-    }
-
-
-    public int playFromFTP(String uP, final String uE) throws Exception {
-
-
-        mediaPlayer.setDataSource(uP);
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaPlayer.prepare();
-        durPol = mediaPlayer.getDuration();
-
-        mediaPlayer.start();// odtworzenie Polskiego slowa
-       // mediaPlayer.release();
-
-        new Thread(new Runnable() { // utworzenie nowego watku
-            @Override
-            public void run() {
-
-
-                try {
-                    sleep(durPol * 2); // przerwa na odtworzenie i powtorzenie poolskiego slowa
-                    durEn = playSoundEnglish(uE);// odegranie angioelskiego slwoa
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
-
-        return ((durPol + durEn));
-
-    }
-
-    protected int playSoundPolish(String uP) throws Exception {
-
-        // killMediaPlayer(media);
-
-
-        return mediaPlayer.getDuration();
-
-
-    }
-
-
-    protected int playSoundEnglish(String uE) throws Exception {
-
-       // mediaPlayer.release();
-
-        mediaPlayer.setDataSource(uE);
-
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaPlayer.prepare();
-
-        mediaPlayer.setLooping(false); // setlooping ustawione na false, przekazuje wykonanie do setOnCompletionListener
-        mediaPlayer.start();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
-
-                    int liczbaPowtorzen = 0;// zmienna odpowidzialna za licze powtoren
-                    int dur = 0;
-
-                    @Override
-                    public void onCompletion(MediaPlayer EnglishAudio) {
-
-
-                        if (liczbaPowtorzen < 1) { //warunek ile ma byc powtorzen
-
-
-                            try {
-                                synchronized (this) {
-                                    Thread.sleep(EnglishAudio.getDuration());  // przerwa na samodzielne powtorzenie
-                                }
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            EnglishAudio.start();
-                            liczbaPowtorzen++;
-                        }
-                    }
-
-
-                });
-
-            }
-        }).start();
-
-
-        return mediaPlayer.getDuration();
     }
 
 

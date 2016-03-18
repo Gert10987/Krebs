@@ -3,6 +3,7 @@ package info.krepsmethod;
 import android.app.Activity;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
@@ -77,17 +78,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     TextView emptyList;
     ProgressDialog PB;
 
-    int DurationFullAudioa = 0, postLevelProgress = 1;
-    Handler updateBarHandler;
-
+    int DurationFullAudioa = 0;
 
     // JSON Node names
     public static final String ITEM_ID = "id";
     public static final String POLISH_WORD = "PolishWordText";
     public static final String ENGLISH_WORD = "EnglishWordText";
-    private MediaPlayer mediaPlayer;
-    private int durPol;
-    private int durEn;
 
 
     @Override
@@ -100,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         Item_List = new ArrayList<HashMap<String, String>>();
         list = (ListView) findViewById(R.id.listView1);
+
+        PB = new ProgressDialog(MainActivity.this);
 
 
         PD = new ProgressDialog(this);
@@ -124,19 +122,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 String uP = "http://krebsmethod.cba.pl/PolishSound/" + idT + "polish.3gpp";
                 String uE = "http://krebsmethod.cba.pl/EnglishSound/" + idT + "english.3gpp";
 
-                if (DurationFullAudioa == 1) {
 
-                    Toast.makeText(getApplicationContext(), "stop", Toast.LENGTH_SHORT).show();
+                if (PB.isShowing()) {
 
                     try {
 
-                        mediaE.stop();
-                        mediaP.stop();
 
-                        mediaP = new MediaPlayer();
-                        mediaE = new MediaPlayer();
-                        PB.setProgress(0);
-
+                        stopTasksPlayAudio();
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -146,28 +138,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                     try {
 
-                    /*    ConnectForDur connectForDur = new
-                                ConnectForDur(mediaE, mediaP, uP, uE);
-
-                        connectForDur.run();
-
-
-                        int x = connectForDur.get();*/
-
-                        run(uP, uE);
-
-                        launcherDialogBar(d(beforePlayE(mediaE, uE), beforPlayP(mediaP, uP)));
-
-
-                        ConnectForAudio connectForAudio = new
-                                ConnectForAudio(mediaP, mediaE, uP, uE);
-
-                        connectForAudio.run();
-
-
-                        mediaP = new MediaPlayer();
-                        mediaE = new MediaPlayer();
-
+                        startTasksPlayAudio(uP, uE);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -179,6 +150,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
 
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -195,11 +168,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.dodaj) {
 
             Intent intent = new Intent(getApplicationContext(), CreatePolishActivity.class);
             startActivity(intent);
             return true;
+        }
+
+        if(id == R.id.odswiez){
+
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+            return true;
+
+        }
+
+        if(id == R.id.nauka){
+
+            Intent intent = new Intent(getApplicationContext(), LearnActivity.class);
+            startActivity(intent);
+            return true;
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -434,228 +423,40 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
+    public void startTasksPlayAudio(String uP, String uE) throws IOException {
 
-    public void launcherDialogBar(final int DurationFullAudio) {
+        ConnectForDuration connectForDuration = new
+                ConnectForDuration(uP, uE, mediaP, mediaE);
+
+        connectForDuration.run();
+
+        ProgressDialogTask progressDialogTask = new
+                ProgressDialogTask(PB, connectForDuration.getFullAudioLenght(),
+                MainActivity.this, mediaP, mediaE);
+
+        progressDialogTask.run();
 
 
+        ConnectForAudio connectForAudio = new
+                ConnectForAudio(mediaP, mediaE, uP, uE);
+
+        connectForAudio.run();
+
+
+        mediaP = new MediaPlayer();
+        mediaE = new MediaPlayer();
         PB = new ProgressDialog(MainActivity.this);
-        PB.setMessage("Odtwaraznie");
-        PB.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        setProgress(0);
-        PB.setMax(DurationFullAudio);
-        PB.show();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (PB.getProgress() < DurationFullAudio) {
-
-                    try {
-                        sleep(1000);
-                        PB.incrementProgressBy(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    if (PB.getProgress() == DurationFullAudio) {
-                        PB.dismiss();
-                        PB.setProgress(0);
-                        PB.incrementProgressBy(0);
-
-                    }
-
-                }
-            }
-
-        }).start();
-
-        PB.setProgress(0);
-        PB.incrementProgressBy(0);
-    }
-
-
-    int i;
-
-    public void run(final String uP, final String uE) {
-
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-
-                    FTPClient con = null;
-                    MediaPlayer e = new MediaPlayer();
-                    MediaPlayer p = new MediaPlayer();
-
-                    con = new FTPClient();
-                    con.connect("95.211.80.5");
-
-                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
-                        con.enterLocalPassiveMode(); // important!
-                        con.setFileType(FTP.BINARY_FILE_TYPE);
-
-                        try {
-
-
-                            beforePlayE(e, uE);
-                            beforPlayP(p, uP);
-                            //d(beforePlayE(e, uE), beforPlayP(p, uP));
-
-
-                        } catch (Exception ee) {
-                            ee.printStackTrace();
-                        }
-
-
-                        con.logout();
-                        con.disconnect();
-
-                    }
-
-
-                } catch (Exception e) {
-                    Log.v("download result", "failed");
-                    e.printStackTrace();
-                }
-
-
-            }
-        }).start();
 
 
     }
 
-    public int get() {
+    public void stopTasksPlayAudio() {
 
-        return i;
-
-    }
-
-
-    public int d(int durEn, int durPol) {
-
-        int x = 0;
-
-        x = ((((durEn + durPol) * 2) + durEn) / 100);
-
-        return x;
-
-    }
-
-    public int beforPlayP(MediaPlayer mediaP, String uP) throws IOException {
-
-
-        mediaP.setDataSource(uP);
-        mediaP.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaP.prepare();
-        durPol = mediaP.getDuration();
-        return durPol;
-
-    }
-
-    public int beforePlayE(MediaPlayer mediaE, String uE) throws IOException {
-
-
-        mediaE.setDataSource(uE);
-        mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaE.prepare();
-        durEn = mediaE.getDuration();
-        return durEn;
 
     }
 
 
 }
-
-
-
-
-
-
-
-   /* public void progressBar() {
-
-
-        class Async extends AsyncTask<Integer, Integer, Void> {
-
-            @Override
-            protected Void doInBackground(Integer... params) {
-
-
-
-                for (int count = 0; count < DurationFullAudio; count++) {
-                    try {
-                        Thread.sleep(100);
-                        publishProgress(count);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-
-                return null;
-
-            }
-
-            @Override
-            protected void onPreExecute() {
-
-
-
-                PB.setVisibility(View.VISIBLE);
-                PB.setProgress(1);
-
-                super.onPreExecute();
-
-
-            }
-
-            @Override
-            protected void onProgressUpdate(Integer... values) {
-                super.onProgressUpdate(values);
-                PB.setProgress(values[0]);
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-
-                postLevelProgress = PB.getProgress();
-
-
-
-            }
-
-        }
-
-        new Async().execute();
-    }*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

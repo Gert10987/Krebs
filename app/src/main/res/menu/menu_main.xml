@@ -3,8 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="info.actrionbar.MainActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/dodaj"
         android:orderInCategory="100"
         android:title="@string/Dodaj"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/odswiez"
+        android:orderInCategory="100"
+        android:title="@string/Odswiez"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/nauka"
+        android:orderInCategory="100"
+        android:title="@string/Nauka"
         app:showAsAction="never" />
 </menu>
