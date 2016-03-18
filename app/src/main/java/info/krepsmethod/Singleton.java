@@ -6,6 +6,11 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
 public class Singleton extends Application {
+    /*
+    Klasa potrzebna do biblioteki volley
+    do odbierania i wysylania jsonow
+    wykorzystuje wzorzec Singleton, globalny i pojedynczy dostep do obiektu
+     */
 
     private RequestQueue mRequestQueue;
     private static Singleton mInstance;

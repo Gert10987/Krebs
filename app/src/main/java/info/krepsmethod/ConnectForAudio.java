@@ -14,14 +14,20 @@ import static java.lang.Thread.sleep;
  */
 public class ConnectForAudio implements Runnable {
 
-
+    /*
+     Inicjazlizacji zmiennych do Klasy********************
+     Klasa Odpowiedzialna za odegranie audio z FTP
+     */
     private MediaPlayer mediaP = new MediaPlayer();
     private MediaPlayer mediaE = new MediaPlayer();
     private String uP;
     private String uE;
     private int durPol;
-    private int durEn;
 
+
+    /*
+     Utworzenie konstruktora Klasy*********************
+    */
     public ConnectForAudio(MediaPlayer mediaP, MediaPlayer mediaE, String uP, String uE) {
         this.mediaE = mediaE;
         this.mediaP = mediaP;
@@ -31,6 +37,9 @@ public class ConnectForAudio implements Runnable {
 
     }
 
+    /*
+    Utworzenie metody Run osobnego watku interfejsu Runnable******************
+    */
     @Override
     public void run() {
 
@@ -40,42 +49,46 @@ public class ConnectForAudio implements Runnable {
 
                 try {
 
-                    FTPClient con = null;
+                    FTPClient con = null; // Utworzenie zmiennej do polaczenia
                     con = new FTPClient();
-                    con.connect("95.211.80.5");
+                    con.connect("95.211.80.5"); // ustawienie adresu FTP
 
                     if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
-                        con.enterLocalPassiveMode(); // important!
-                        con.setFileType(FTP.BINARY_FILE_TYPE);
+                        con.enterLocalPassiveMode(); // ustawienie passiveMode
+                        con.setFileType(FTP.BINARY_FILE_TYPE); // typ Plikow Binarny
 
                         try {
 
-                            playFromFTP(mediaP, mediaE, uP, uE);
+                            playFromFTP(mediaP, mediaE, uP, uE); //wywolanie metody playFromFTP
 
 
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            e.printStackTrace(); //wyjatki
                         }
-                        con.logout();
-                        con.disconnect();
+                        con.logout(); // wylogowanie z FTP
+                        con.disconnect(); // Rozlacznie z FTP
 
                     }
 
 
-                } catch (Exception e) {
-                    Log.v("download result", "failed");
+                } catch (Exception e) { // Wyjatki
+                    Log.v("download result", "failed"); // LOG
                     e.printStackTrace();
                 }
 
 
             }
-        }).start();
+        }).start(); // Start Watku
 
 
     }
 
 
-    public int playFromFTP(MediaPlayer mediaP, final MediaPlayer mediaE, String uP, final String uE) throws Exception {
+    /*
+    Metoda playFromFTP do Odtwaznia Audio bezposrednio z FTP , przyjmuje 4 zmienne,
+  / Wykorzystuje metode playSoundEnglish   ***************************************
+    */
+    public void playFromFTP(MediaPlayer mediaP, final MediaPlayer mediaE, String uP, final String uE) throws Exception {
         mediaP.reset();
         mediaP.setDataSource(uP);
         mediaP.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -100,12 +113,13 @@ public class ConnectForAudio implements Runnable {
         }).start();
 
 
-        return durPol;
-
     }
 
 
-    protected int playSoundEnglish(MediaPlayer mediaE, final String uE) throws Exception {
+    /*
+    Metoda play Sound English przyjmuje dwie zmienne odgrywa dwa razy angielskie slowa**************
+    */
+    protected void playSoundEnglish(MediaPlayer mediaE, final String uE) throws Exception {
         mediaE.reset();
         mediaE.setDataSource(uE);
         mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -115,13 +129,10 @@ public class ConnectForAudio implements Runnable {
         mediaE.start();
 
 
-
         mediaE.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
 
             int liczbaPowtorzen = 0;// zmienna odpowidzialna za licze powtoren
-
-
 
 
             @Override
@@ -156,7 +167,6 @@ public class ConnectForAudio implements Runnable {
         });
 
 
-        return durEn;
     }
 
 

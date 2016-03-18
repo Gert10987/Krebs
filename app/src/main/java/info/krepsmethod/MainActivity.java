@@ -55,30 +55,20 @@ import static java.lang.Thread.sleep;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     /*
-
-    Głowna klasa programu KRrebsMethod
-
+    Głowna klasa programu KRrebsMethod***********************
+    Sluzy do sterowania glowna aktywnoscia glownie na obielktach mediaPlayer
     Incjalizowanie zmiennych;
-
-
      */
 
-
-    Track track = new Track();
-    ImageView imagePlayButton;
     MediaPlayer mediaP = new MediaPlayer();
     MediaPlayer mediaE = new MediaPlayer();
-
-
     String url = "http://krebsmethod.cba.pl/read.php";
-    ArrayList<HashMap<String, String>> Item_List;
+    ArrayList<HashMap<String, String>> Item_List; // Lista do zczytywania jsonow z bazy
     ProgressDialog PD;
     ListAdapter adapter;
     ListView list;
     TextView emptyList;
-    ProgressDialog PB;
-
-    int DurationFullAudioa = 0;
+    ProgressDialog PB; // ProgressDialog progress odtwarzania
 
     // JSON Node names
     public static final String ITEM_ID = "id";
@@ -90,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        /*
+        Utworzenie ActionaBara
+         */
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -105,30 +98,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         PD.setCancelable(false);
 
         emptyList = (TextView) findViewById(R.id.emptyList);// gdy lista jest pusta
-        emptyList.setText(" ");
 
-        ReadDataFromDB();
+        ReadDataFromDB();// metoda zczytujaca naze z bazy danych i ustawia je na liscie********
 
-        registerForContextMenu(list);
+        registerForContextMenu(list); // Pierwszy etap tworznia menu context
 
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                TextView idTextView = (TextView) view.findViewById(R.id.IdTextView); // pobranbie id z pola text view
+                // pobranbie id z pola text view
+                TextView idTextView = (TextView) view.findViewById(R.id.IdTextView);
                 String idT = idTextView.getText().toString();
 
-
+                //url'e do plikow audio
                 String uP = "http://krebsmethod.cba.pl/PolishSound/" + idT + "polish.3gpp";
                 String uE = "http://krebsmethod.cba.pl/EnglishSound/" + idT + "english.3gpp";
 
-
+                //Warunek gdy ProgressDialog jest pokzany
                 if (PB.isShowing()) {
 
                     try {
 
-
-                        stopTasksPlayAudio();
+                        stopTasksPlayAudio(); // stop Watki
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -138,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                     try {
 
-                        startTasksPlayAudio(uP, uE);
+                        startTasksPlayAudio(uP, uE);// Start Watki
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -152,22 +144,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
 
+   // **************************************KONIEC ONCREATE******************************
 
+
+
+    /*
+    OnCreateoptionsMenu tworznie
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.dodaj) {
 
             Intent intent = new Intent(getApplicationContext(), CreatePolishActivity.class);
@@ -175,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             return true;
         }
 
-        if(id == R.id.odswiez){
+        if (id == R.id.odswiez) {
 
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
@@ -183,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         }
 
-        if(id == R.id.nauka){
+        if (id == R.id.nauka) {
 
             Intent intent = new Intent(getApplicationContext(), LearnActivity.class);
             startActivity(intent);
@@ -194,18 +189,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return super.onOptionsItemSelected(item);
     }
 
-    // tworzenie menu
 
 
-    // obsluga przyciskow menu
-
-
-    // KONIEC METODY ON CREATE********************************************
-
-
-    //**************************** Drugi etap ustawiania context menu
-
-
+    /*
+    Drugi Etap Tworzniea ContextMenu
+     */
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -220,10 +208,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-
-    //*************************  Trzeci ostatni etap ustawiania context menu
-
-
+    /*
+    Trzeci ostatni etap twoenie context menu
+    */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
 
@@ -233,8 +220,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (item.getTitle() == "Delete") //jezeli nacisne pole Delete wykona sie warunek
 
         {
-
-
             String selectedID = ((TextView) adapter.targetView.findViewById
                     (R.id.IdTextView)).getText().toString();// pobranie id z pola txtview
 
@@ -242,9 +227,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             deleteAudio(selectedID);//wywolanie metody usun z serwera ftp wzgledem id
 
             Intent intent = new Intent(this, MainActivity.class); //odswiezenie
-
             startActivity(intent);//odswiezeine*/
-            ReadDataFromDB();
+            ReadDataFromDB();// aktualizacja listy
 
         } else {
 
@@ -257,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
 
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -265,21 +250,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-
+    /*
+    Metoda zczytywania danych z bazy danych textowych i umiesczmania ich na liscie
+     */
     public void ReadDataFromDB() {
         PD.show();
+        //Nowy obiekt jsona
         JsonObjectRequest jreq = new JsonObjectRequest(Request.Method.GET, url,
                 new Response.Listener<JSONObject>() {
 
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            int success = response.getInt("success");
+                            int success = response.getInt("success");//odpowiedz ze skryptu czy sa elemnty
 
                             if (success == 1) {
-                                JSONArray ja = response.getJSONArray("orders");
+                                JSONArray ja = response.getJSONArray("orders"); // pobranie tablicy jsonow
 
 
+                                //umiesczenie jsonow w lisice i zrobeinie ich do stringa
                                 for (int i = 0; i < ja.length(); i++) {
 
                                     JSONObject jobj = ja.getJSONObject(i);
@@ -293,14 +282,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                                 } // for loop ends
 
-                                setList();
+                                setList();//ustawienie listy
 
                             } else {// if ends
 
                                 emptyList.setText("Brak danych w bazie");
                                 PD.dismiss();
-
-
                             }
 
 
@@ -323,9 +310,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-
+    /*
+    Metoda do usuwania danych z bazy
+     */
     public void deleteText(String id) {
         PD.show();
+        //url do skryptu
         String delete_url = "http://krebsmethod.cba.pl/delete.php?id="
                 + id;
 
@@ -369,30 +359,41 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Singleton.getInstance().addToReqQueue(delete_request);
 
     }
+    /*
+    Metoda do usuwania dancyh z FTP
+     */
+    public void deleteAudio(final String id) {
 
-    public void deleteAudio(String id) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        FTPClient con = null;
+                FTPClient con = null;
 
-        try {
-            con = new FTPClient();
-            con.connect("95.211.80.5");
+                try {
+                    con = new FTPClient();
+                    con.connect("95.211.80.5");
 
-            if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
-                con.enterLocalPassiveMode(); // important!
-                String pData = "/polishSound/" + id + "polish.3gpp";
-                String eData = "/englishSound/" + id + "english.3gpp";
-                con.deleteFile(pData);
-                con.deleteFile(eData);
-                con.logout();
-                con.disconnect();
+                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+                        con.enterLocalPassiveMode(); // important!
+                        String pData = "/polishSound/" + id + "polish.3gpp";
+                        String eData = "/englishSound/" + id + "english.3gpp";
+                        con.deleteFile(pData);
+                        con.deleteFile(eData);
+                        con.logout();
+                        con.disconnect();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        }).start();
 
     }
-
+    /*
+    Ustawnie Listy
+     */
     public void setList() {
 
         String[] from = {ITEM_ID,
@@ -422,6 +423,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
     }
+
+    /*
+    uruchomienei Watkow Progres, getDuration, playfromFTP
+     */
 
     public void startTasksPlayAudio(String uP, String uE) throws IOException {
 

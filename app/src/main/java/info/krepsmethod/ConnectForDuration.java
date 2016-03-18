@@ -14,7 +14,10 @@ import java.io.IOException;
  */
 public class ConnectForDuration implements Runnable {
 
-
+    /*
+    Inicjalizacja zminenych w Klasie ConnectForDuration
+    Klasa Odpowiedzialna za pobranie dlugosci nagran, przed odtworzniem****************
+     */
     final private String uE;
     final private String uP;
     private int durEn;
@@ -22,6 +25,8 @@ public class ConnectForDuration implements Runnable {
     MediaPlayer mediaP = new MediaPlayer();
     MediaPlayer mediaE = new MediaPlayer();
 
+
+    //Utworznie konstruktora Klasy ConnectForDuration************************************
     public ConnectForDuration(String uE, String uP, MediaPlayer mediaP, MediaPlayer mediaE) {
         this.uE = uE;
         this.uP = uP;
@@ -29,6 +34,11 @@ public class ConnectForDuration implements Runnable {
         this.mediaP = mediaP;
     }
 
+    /*
+    Metoda run() interfejsu Runnable (synchronized) jako pierwszy z tzrech watkow korzysta ze zminnych w metodzie
+    MainActivity aby pobrac dlugosc nagran**************************
+    Wywoluje metody beforePlayP, beforePlayE
+     */
     synchronized public void run() {
 
 
@@ -78,16 +88,22 @@ public class ConnectForDuration implements Runnable {
 
     }
 
+
+    //Metoda wzor na dlugosc nagran dla ProgressDialog'a zwraca Maxa progressDialoga
     public int AudioLenght(int durEn, int durPol) {
 
         int x = 0;
 
-        x = ((((durPol)* 2) + (durEn)*3) / 100);
+        x = ((((durPol) * 2) + (durEn) * 3) / 100);
 
         return x;
 
     }
 
+
+    /*
+    Metoda beforePlay zwraca dlugosc Polskiego slowa
+     */
     public int beforePlayP(MediaPlayer mediaP, String uP) throws IOException {
 
 
@@ -99,6 +115,10 @@ public class ConnectForDuration implements Runnable {
 
     }
 
+
+    /*
+    Metoda beforePlay zwraca dlugosc Angielskiego slowa
+     */
     public int beforePlayE(MediaPlayer mediaE, String uE) throws IOException {
 
 
@@ -110,13 +130,17 @@ public class ConnectForDuration implements Runnable {
 
     }
 
+
+
+    /*
+    Metoda getFullAudioLenght zwraca calkowita dlugosc nagran
+     */
     public int getFullAudioLenght() throws IOException {
 
         return AudioLenght(beforePlayE(mediaE, uE), beforePlayP(mediaP, uP));
 
 
     }
-
 
 
 }

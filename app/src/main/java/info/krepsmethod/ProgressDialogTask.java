@@ -13,14 +13,19 @@ import static java.lang.Thread.sleep;
  */
 public class ProgressDialogTask implements Runnable {
 
-
+    /*
+    Inicjalizacja zmiennych Klasy ProgressDialogTask*************
+    Klasa sluzy do wyswietlania ProhressDialoga podczas odtworzenia audio***************
+     */
     private ProgressDialog PB;
     final private int DurationFullAudio;
     private MediaPlayer mediaE = new MediaPlayer();
     private MediaPlayer mediaP = new MediaPlayer();
     Context context;
 
-
+    /*
+    Utworznie konstruktora Klasy***********************
+     */
     public ProgressDialogTask(ProgressDialog pb, int durationFullAudio, Context context,
                               MediaPlayer mediaP, MediaPlayer mediaE) {
         this.PB = pb;
@@ -30,14 +35,18 @@ public class ProgressDialogTask implements Runnable {
         this.mediaE = mediaE;
     }
 
+    /*
+    Metoda run interfejsu Runnable osobny watek wyswietla ***************
+    i parametryzuje ProgressDialog podczas wyswietlania Audio*****************
+     */
     @Override
     public void run() {
 
-            PB.setMessage("Odtwaraznie: ");
-            PB.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            PB.setProgress(0);
-            PB.setMax(DurationFullAudio);
-            PB.setButton(DialogInterface.BUTTON_NEGATIVE, " STOP", new DialogInterface.OnClickListener() {
+        PB.setMessage("Odtwaraznie: ");
+        PB.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        PB.setProgress(0);
+        PB.setMax(DurationFullAudio);
+        PB.setButton(DialogInterface.BUTTON_NEGATIVE, " STOP", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
@@ -56,35 +65,34 @@ public class ProgressDialogTask implements Runnable {
             }
         });
 
-            PB.show();
+        PB.show();
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (PB.getProgress() < PB.getMax()) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (PB.getProgress() < PB.getMax()) {
 
-                        try {
-                            sleep(1000);
-                            PB.incrementProgressBy(10);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                    try {
+                        sleep(1000);
+                        PB.incrementProgressBy(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
-                        if (PB.getProgress() == PB.getMax()) {
-                            PB.dismiss();
-                            PB.setProgress(0);
-
-                        }
+                    if (PB.getProgress() == PB.getMax()) {
+                        PB.dismiss();
+                        PB.setProgress(0);
 
                     }
+
                 }
+            }
 
-            }).start();
-
-
-        }
-
+        }).start();
 
 
     }
+
+
+}
 

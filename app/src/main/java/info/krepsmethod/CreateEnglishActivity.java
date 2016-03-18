@@ -37,12 +37,11 @@ import java.util.Map;
  */
 public class CreateEnglishActivity extends Activity {
 
-
-    // Klasa odpowiedzialna za dodawanie nowych slow do programu
-
-    //Tworznie zmiennych
-
-
+    /*
+    Inicjalizacja zmiennych Klasa odpowiedzialana za dodawanie ******************
+    wprowaznaie Angileskiego slowa i nagrania*************
+    oraz za ostateczne dodanie Audio i textu
+     */
     Track track = new Track();
     EditText englishWordtext;
     TextView zaladowanoNagranie;
@@ -53,8 +52,7 @@ public class CreateEnglishActivity extends Activity {
     ProgressDialog PD;
     String url = "http://krebsmethod.cba.pl/insert.php"; // url do skryptu wstawiania nowych rekordow
     String polishWordText, englishWordText;// zmienna ktora ma przchowywac napis
-    File myNewFolder = new File(extStorageDirectory + sep + newFolder);
-
+    File myNewFolder = new File(extStorageDirectory + sep + newFolder); // nowy folder
 
 
     @Override
@@ -62,63 +60,56 @@ public class CreateEnglishActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_english);
 
+        track.OutputFile = Environment.getExternalStorageDirectory().toString() +
+                sep + newFolder + sep + "Sound.3gpp";
+
         PD = new ProgressDialog(this); // inicjalizacja Progress Dialog
         PD.setMessage("Loading....."); // ustawienie napisu
         PD.setCancelable(false); //ustawinie czy PD ma reagowac na przycisk "back"
 
-        track.OutputFile = extStorageDirectory
-                + sep + newFolder + sep + "Sound.3gpp";
-
         englishWordtext = (EditText) findViewById(R.id.textEnglishWord);
         Next = (Button) findViewById(R.id.buttonNext);
-
-
-        //  zaladowanie Nagrania komunikat gdy nagranie jest gotowe
-
-
-        zaladowanoNagranie = (TextView) findViewById(R.id.zaladowanoNagranie);
+        zaladowanoNagranie = (TextView) findViewById(R.id.zaladowanoNagranie);  //  zaladowanie Nagrania komunikat gdy nagranie jest gotowe
         zaladowanoNagranie.setText(" ");
-
-
-        // Button Next update bazy danych
+        /*
+         Button Next update bazy danych
+          */
 
         Next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                // Pobranie wartosci z pol Edittext angielskiego i polskiego slowa,
-                // odebranie wartosci autoIncNextVal z poprzedniej aktywnosci
 
+                /*
+                 Pobranie wartosci z pol Edittext angielskiego i polskiego slowa,
+                 odebranie wartosci autoIncNextVal z poprzedniej aktywnosci
+                 */
                 englishWordText = englishWordtext.getText().toString();
                 polishWordText = getIntent().getStringExtra("polishWord");
                 int autoIncNextVal = getIntent().getIntExtra("idd", 0);
 
 
-                // Warunek czy pole angielskie slowo nie jest puste
-
-
+                /*
+                 Warunek czy pole angielskie slowo nie jest puste
+                  */
                 if (englishWordText.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Wpisz ANGIELSKIE słowo", Toast.LENGTH_SHORT).show();
-                }
-
-
-                //Warunek czy nagranie jest gotowe
-
-
-                if (zaladowanoNagranie.getText() == " ") {
+                }else if (zaladowanoNagranie.getText() == " ") {
                     Toast.makeText(getApplicationContext(),
                             "Nagraj Tłumaczenie", Toast.LENGTH_SHORT).show();
 
                 } else {
 
-                    PD.show();
-                    renameFileAudio(autoIncNextVal);
-                    insertAudio(autoIncNextVal);
-                    insertText();
+                    PD.show(); //Wyswietelnie PrgressDialog
+                    renameFileAudio(autoIncNextVal);// zmiana nazwy nagranyc nagran + id z bazy danych
+                    insertAudio(autoIncNextVal);// insert Audio on FTP
+                    insertText();//insertText to Dtatbase
 
 
-
+                    /*
+                    Powrot do poprzeniej aktywnosci
+                     */
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
 
@@ -132,7 +123,9 @@ public class CreateEnglishActivity extends Activity {
     }
     //**************************KONIEC ON CREATE****************************
 
-
+    /*
+    Obsluga przyciskow Audio
+     */
     public void doClick(View view) {
         switch (view.getId()) {
             case R.id.recordButton:
@@ -151,8 +144,7 @@ public class CreateEnglishActivity extends Activity {
                     track.stopRecording();
                     Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show();
                     zaladowanoNagranie.setText("zaladowano nagranie");
-                //Api 21    track.onDestroy();
-
+                    //Api 21    track.onDestroy();
 
 
                 } catch (Exception e) {
@@ -173,6 +165,9 @@ public class CreateEnglishActivity extends Activity {
     }
 
 
+    /*
+    Metoda insertText umiescza texty w bazie danych
+     */
     public void insertText() {
 
 
@@ -235,6 +230,10 @@ public class CreateEnglishActivity extends Activity {
 
     }
 
+
+    /*
+    Metoda insert Audio umiescza pliki onFTP i wukonuje metode kasowania z kart sd
+     */
     public void insertAudio(final int id) {
 
 
@@ -279,6 +278,9 @@ public class CreateEnglishActivity extends Activity {
 
     }
 
+    /*
+    Kasowanie plikow z karty sd
+     */
     public void deleteFromSD(int id) {
 
         File file = new File(track.SoundInList =
@@ -292,9 +294,15 @@ public class CreateEnglishActivity extends Activity {
                         + sep + newFolder + sep + id + "englishSound.3gpp");
 
         file2.delete();
+
+
     }
 
-    public void renameFileAudio(int idAudio){
+    /*
+    Zmiana nazwy plikow aby byly kompatybilne z id w bazie
+     */
+
+    public void renameFileAudio(int idAudio) {
 
         File from = new File(myNewFolder, "Sound.3gpp");
         File to = new File(myNewFolder, idAudio + "english" + "Sound.3gpp");
@@ -302,8 +310,6 @@ public class CreateEnglishActivity extends Activity {
             from.renameTo(to);
 
     }
-
-
 
 
 }
