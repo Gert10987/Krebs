@@ -449,6 +449,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void startTasksPlayAudio(String uP, String uE) throws IOException {
 
+
         ConnectForDuration connectForDuration = new
                 ConnectForDuration(uP, uE, mediaP, mediaE);
 

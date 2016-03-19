@@ -60,7 +60,8 @@ public class ConnectForAudio implements Runnable {
                         con.setFileType(FTP.BINARY_FILE_TYPE); // typ Plikow Binarny
 
                         try {
-
+                            mediaP.reset(); // resetuje tutaj bo nie dziala nauka gdy resetuje w metodach
+                            mediaE.reset();
                             playFromFTP(mediaP, mediaE, uP, uE); //wywolanie metody playFromFTP
 
 
@@ -134,7 +135,8 @@ public class ConnectForAudio implements Runnable {
   / Wykorzystuje metode playSoundEnglish   ***************************************
     */
     public void playFromFTP(MediaPlayer mediaP, final MediaPlayer mediaE, String uP, final String uE) throws Exception {
-        mediaP.reset();
+
+       // mediaP.reset(); pwowduje przyciecia  w runinLearn dlatego resetuje w innym miescu dla runa
         mediaP.setDataSource(uP);
         mediaP.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaP.prepare();
@@ -165,7 +167,8 @@ public class ConnectForAudio implements Runnable {
     Metoda play Sound English przyjmuje dwie zmienne odgrywa dwa razy angielskie slowa**************
     */
     protected void playSoundEnglish(final MediaPlayer mediaE, final String uE) throws Exception {
-        mediaE.reset();
+
+     // mediaE.reset(); pwowduje przyciecia  w runinLearn dlatego resetuje w innym miescu dla runa
         mediaE.setDataSource(uE);
         mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaE.prepare();

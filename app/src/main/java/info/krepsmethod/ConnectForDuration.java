@@ -166,7 +166,7 @@ public class ConnectForDuration implements Runnable {
      */
     public int beforePlayP(MediaPlayer mediaP, String uP) throws IOException {
 
-
+        mediaP.reset();
         mediaP.setDataSource(uP);
         mediaP.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaP.prepare();
@@ -181,7 +181,7 @@ public class ConnectForDuration implements Runnable {
      */
     public int beforePlayE(MediaPlayer mediaE, String uE) throws IOException {
 
-
+        mediaE.reset();
         mediaE.setDataSource(uE);
         mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaE.prepare();

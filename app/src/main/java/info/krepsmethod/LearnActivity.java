@@ -33,6 +33,8 @@ public class LearnActivity extends AppCompatActivity {
     private MediaPlayer mediaP = new MediaPlayer();
     private MediaPlayer mediaE = new MediaPlayer();
     ArrayList c = new ArrayList<String>();
+    MediaPlayer mdP = new MediaPlayer();
+    MediaPlayer mdE = new MediaPlayer();
     TextView zaladowano;
 
 
@@ -61,54 +63,45 @@ public class LearnActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if(zaladowano.getText() == " ") {
+                if (zaladowano.getText() == " ") {
                     try {
                         zaladowano.setText("Odtwarzanie");
-                        ds();
                         buttonLearn.setText("Stop");
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
+                        playFromFTPAll();
+
+
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
-                if(buttonLearn.getText() == "Stop") {
+                } else if (buttonLearn.getText() == "Stop") {
 
 
                     mediaE.stop();
                     mediaE.release();
                     mediaP.stop();
                     mediaP.release();
+                    Thread.currentThread().isInterrupted();
 
-                    mediaP = new MediaPlayer();
-                    mediaE = new MediaPlayer();
+
                     zaladowano.setText(" ");
+                    buttonLearn.setText("Start");
 
 
                 }
-
-
-
-
-
-
 
 
             }
         });
     }
 
-    public void ds() throws InterruptedException, IOException {
+    public void playFromFTPAll() {
+
 
         new Thread(new Runnable() {
             @Override
             public void run() {
 
-
-
                 for (int i = 0; i < c.size(); i++) {
-                    MediaPlayer mdP =  new MediaPlayer();
-                    MediaPlayer mdE = new MediaPlayer();
 
 
                     String uP = "http://krebsmethod.cba.pl/PolishSound/" + c.get(i) + "polish.3gpp";
@@ -125,40 +118,28 @@ public class LearnActivity extends AppCompatActivity {
                     connectForAudio.runInLearn();
 
                     Thread x = new Thread(connectForAudio);
-
-
                     x.start();
 
 
-
-
-
                     try {
-                        sleep(connectForDuration.getFullAudioLenght()* 100 + 2000);
+                        sleep(connectForDuration.getFullAudioToLearn());
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
-
-                    mediaP = new MediaPlayer();
-                    mediaE = new MediaPlayer();
-
-
-
-
-
                 }
-
             }
-
-
         }).start();
-
-
     }
 }
+
+
+
+
+
+
 
 
 
