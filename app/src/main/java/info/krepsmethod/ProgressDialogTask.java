@@ -42,6 +42,7 @@ public class ProgressDialogTask implements Runnable {
     @Override
     public void run() {
 
+
         PB.setMessage("Odtwaraznie: ");
         PB.setCancelable(false);
         PB.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);

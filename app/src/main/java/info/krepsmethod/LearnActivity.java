@@ -1,6 +1,7 @@
 package info.krepsmethod;
 
 import android.app.ProgressDialog;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -36,6 +37,7 @@ public class LearnActivity extends AppCompatActivity {
     MediaPlayer mdP = new MediaPlayer();
     MediaPlayer mdE = new MediaPlayer();
     TextView zaladowano;
+    private Visualizer mVisualizer;
 
 
     ProgressDialog PB;
@@ -63,28 +65,32 @@ public class LearnActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                Thread x = new Thread();
+                LearnTask learnTask = new LearnTask(x, mediaE, mediaP, c, mdP, mdE, buttonLearn);
+                Thread task = new Thread(learnTask);
+
+
                 if (zaladowano.getText() == " ") {
-                    try {
-                        zaladowano.setText("Odtwarzanie");
-                        buttonLearn.setText("Stop");
-                        playFromFTPAll();
+
+                    zaladowano.setText("Odtwarzanie");
+                    buttonLearn.setText("Stop");
+                    task.start();
 
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
                 } else if (buttonLearn.getText() == "Stop") {
 
+                    zaladowano.setText(" ");
+                    buttonLearn.setText("Start");
+
+                    x.isInterrupted();
 
                     mediaE.stop();
                     mediaE.release();
                     mediaP.stop();
                     mediaP.release();
-                    Thread.currentThread().isInterrupted();
 
-
-                    zaladowano.setText(" ");
-                    buttonLearn.setText("Start");
+                    mediaP = new MediaPlayer();
+                    mediaE = new MediaPlayer();
 
 
                 }
@@ -94,85 +100,15 @@ public class LearnActivity extends AppCompatActivity {
         });
     }
 
-    public void playFromFTPAll() {
 
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                for (int i = 0; i < c.size(); i++) {
 
 
-                    String uP = "http://krebsmethod.cba.pl/PolishSound/" + c.get(i) + "polish.3gpp";
-                    String uE = "http://krebsmethod.cba.pl/EnglishSound/" + c.get(i) + "english.3gpp";
-
-                    ConnectForDuration connectForDuration = new
-                            ConnectForDuration(uP, uE, mdP, mdE);
-
-                    connectForDuration.runInLearn();
-
-
-                    ConnectForAudio connectForAudio = new
-                            ConnectForAudio(mediaP, mediaE, uP, uE);
-                    connectForAudio.runInLearn();
-
-                    Thread x = new Thread(connectForAudio);
-                    x.start();
-
-
-                    try {
-                        sleep(connectForDuration.getFullAudioToLearn());
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        }).start();
-    }
 }
 
 
 
 
-
-
-
-
-
-
-
-
-               /* for(int i = 1; i < listLength; i++){
-
-
-
-
-
-                /*    new Thread(new Runnable() { // utworzenie nowego watku
-                        @Override
-                        public void run() {
-
-
-                            try {
-                                sleep(connectForDuration.getFullAudioLenght()); // przerwa na odtworzenie i powtorzenie poolskiego slowa
-                                // odegranie angioelskiego slwoa
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }).start();*/
-
-
-
-        /*        }
-
-            }
-        });*/
 
 
 
