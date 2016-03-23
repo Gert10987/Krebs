@@ -105,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         registerForContextMenu(list); // Pierwszy etap tworznia menu context
 
 
-
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -147,8 +146,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
 
-   // **************************************KONIEC ONCREATE******************************
-
+    // **************************************KONIEC ONCREATE******************************
 
 
     /*
@@ -192,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         return super.onOptionsItemSelected(item);
     }
-
 
 
     /*
@@ -245,7 +242,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
 
-
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -274,7 +270,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                             if (success == 1) {
                                 JSONArray ja = response.getJSONArray("orders"); // pobranie tablicy jsonow
-
 
 
                                 //umiesczenie jsonow w lisice i zrobeinie ich do stringa
@@ -371,6 +366,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Singleton.getInstance().addToReqQueue(delete_request);
 
     }
+
     /*
     Metoda do usuwania dancyh z FTP
      */
@@ -403,6 +399,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }).start();
 
     }
+
     /*
     Ustawnie Listy
      */
@@ -416,8 +413,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int[] to = {R.id.IdTextView,
                 R.id.textViewPolishWord,
                 R.id.textViewEnglishWord};
-
-
 
 
         adapter = new SimpleAdapter(getApplicationContext(),
@@ -435,10 +430,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         list.setAdapter(adapter);
 
 
-
         PD.dismiss();
-
-
 
 
     }
@@ -447,24 +439,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     uruchomienei Watkow Progres, getDuration, playfromFTP
      */
 
-    public void startTasksPlayAudio(String uP, String uE) throws IOException {
+    public void startTasksPlayAudio(String uP, String uE) throws IOException, InterruptedException {
 
         ConnectForDuration connectForDuration = new
                 ConnectForDuration(uP, uE, mediaP, mediaE);
-
-        connectForDuration.run();
 
         ProgressDialogTask progressDialogTask = new
                 ProgressDialogTask(PB, connectForDuration.getFullAudioLenght(),
                 MainActivity.this, mediaP, mediaE);
 
-        progressDialogTask.run();
-
 
         ConnectForAudio connectForAudio = new
                 ConnectForAudio(mediaP, mediaE, uP, uE);
 
+        Thread threadDuration = new Thread(connectForDuration);
+
+        threadDuration.start();
+
+        threadDuration.join();
+
         connectForAudio.run();
+
+        progressDialogTask.run();
+
+
 
 
         mediaP = new MediaPlayer();
@@ -484,7 +482,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
     }*/
-
 
 
 }

@@ -10,7 +10,8 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:theme="@style/AppTheme.AppBarOverlay"
+        android:id="@+id/view">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -23,14 +24,22 @@
 
     <include layout="@layout/content_learn" />
 
+    <info.krepsmethod.VisualizerView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/vP"
+
+        />
+
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Play"
+        android:text="Start"
         android:id="@+id/buttonLearn"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="162dp" />
+        android:layout_marginBottom="72dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -38,7 +47,8 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/zaladowano"
         android:text=" "
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_below="@+id/view"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="78dp" />
 
 </RelativeLayout>

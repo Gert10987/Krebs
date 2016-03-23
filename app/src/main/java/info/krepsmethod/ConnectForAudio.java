@@ -27,14 +27,18 @@ public class ConnectForAudio implements Runnable {
     private int durPol;
 
 
+
+
     /*
      Utworzenie konstruktora Klasy*********************
     */
-    public ConnectForAudio(MediaPlayer mediaP, MediaPlayer mediaE, String uP, String uE) {
+    public ConnectForAudio(MediaPlayer mediaP, MediaPlayer mediaE,
+                           String uP, String uE) {
         this.mediaE = mediaE;
         this.mediaP = mediaP;
         this.uP = uP;
         this.uE = uE;
+
 
 
     }
@@ -60,6 +64,7 @@ public class ConnectForAudio implements Runnable {
                         con.setFileType(FTP.BINARY_FILE_TYPE); // typ Plikow Binarny
 
                         try {
+
                             mediaP.reset(); // resetuje tutaj bo nie dziala nauka gdy resetuje w metodach
                             mediaE.reset();
                             playFromFTP(mediaP, mediaE, uP, uE); //wywolanie metody playFromFTP
@@ -87,7 +92,7 @@ public class ConnectForAudio implements Runnable {
     }
 
 
-    public void runInLearn() {
+    public void runInLearn()  {
 
 
 
@@ -119,6 +124,8 @@ public class ConnectForAudio implements Runnable {
                     Log.v("download result", "failed"); // LOG
                     e.printStackTrace();
                 }
+
+
 
 
             }
@@ -218,6 +225,8 @@ public class ConnectForAudio implements Runnable {
 
 
     }
+
+
 
 
 }

@@ -1,6 +1,8 @@
 package info.krepsmethod;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.audiofx.Visualizer;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -21,6 +23,8 @@ public class LearnTask implements Runnable {
     private MediaPlayer mdP = new MediaPlayer();
     private MediaPlayer mdE = new MediaPlayer();
     Button zaladowano;
+
+
 
     LearnTask(Thread x, MediaPlayer mediaE, MediaPlayer mediaP,
               ArrayList c, MediaPlayer mdP, MediaPlayer mdE, Button zaladowano){
@@ -82,9 +86,10 @@ public class LearnTask implements Runnable {
 
 
 
-    public void stop (){
 
 
 
-    }
+
+
+
 }

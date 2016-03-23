@@ -1,15 +1,24 @@
 package info.krepsmethod;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.audiofx.Visualizer;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,10 +46,14 @@ public class LearnActivity extends AppCompatActivity {
     MediaPlayer mdP = new MediaPlayer();
     MediaPlayer mdE = new MediaPlayer();
     TextView zaladowano;
-    private Visualizer mVisualizer;
-
-
     ProgressDialog PB;
+
+    VisualizerView mVisualizerViewE, mVisualizerViewP;
+
+    private MediaPlayer mMediaPlayer, mMediaPlayerC;
+
+    private Visualizer mVisualizerP, mVisualizerE;
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -51,6 +64,8 @@ public class LearnActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         buttonLearn = (Button) findViewById(R.id.buttonLearn);
+
+        mVisualizerViewP = (VisualizerView) findViewById(R.id.vP);
 
 
         c = getIntent().getStringArrayListExtra("list");
@@ -67,14 +82,19 @@ public class LearnActivity extends AppCompatActivity {
 
                 Thread x = new Thread();
                 LearnTask learnTask = new LearnTask(x, mediaE, mediaP, c, mdP, mdE, buttonLearn);
-                Thread task = new Thread(learnTask);
+                final Thread task = new Thread(learnTask);
 
 
                 if (zaladowano.getText() == " ") {
 
                     zaladowano.setText("Odtwarzanie");
                     buttonLearn.setText("Stop");
+
                     task.start();
+
+                    initVisualizerMediaP();
+
+                    initVisualizerMediaE();
 
 
                 } else if (buttonLearn.getText() == "Stop") {
@@ -89,6 +109,9 @@ public class LearnActivity extends AppCompatActivity {
                     mediaP.stop();
                     mediaP.release();
 
+                    mVisualizerE.release();
+                    mVisualizerP.release();
+
                     mediaP = new MediaPlayer();
                     mediaE = new MediaPlayer();
 
@@ -101,10 +124,117 @@ public class LearnActivity extends AppCompatActivity {
     }
 
 
+    private void initVisualizerMediaP() {
 
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        mMediaPlayer = new MediaPlayer();
+
+        setupVisualizerforMediaP();
+
+
+        mVisualizerP.setEnabled(true);
+
+        mMediaPlayer
+                .setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    public void onCompletion(MediaPlayer mediaPlayer) {
+                        mVisualizerP.setEnabled(false);
+                    }
+                });
+
+
+
+
+
+
+    }
+
+    private void initVisualizerMediaE() {
+
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        mMediaPlayerC = new MediaPlayer();
+
+        setupVisualizerforMediaE();
+
+        mVisualizerE.setEnabled(true);
+
+        mMediaPlayerC.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mVisualizerE.setEnabled(false);
+            }
+        });
+
+    }
+
+
+    private void setupVisualizerforMediaP() {
+
+
+        // Create the Visualizer object and attach it to our media player.
+
+
+        mVisualizerP = new Visualizer(mediaP.getAudioSessionId());
+
+
+        mVisualizerP.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
+        mVisualizerP.setDataCaptureListener(
+                new Visualizer.OnDataCaptureListener() {
+                    public void onWaveFormDataCapture(Visualizer visualizer,
+                                                      byte[] bytes, int samplingRate) {
+
+
+                        mVisualizerViewP.updateVisualizer(bytes);
+
+                    }
+
+                    public void onFftDataCapture(Visualizer visualizer,
+                                                 byte[] bytes, int samplingRate) {
+                    }
+                }, Visualizer.getMaxCaptureRate() / 2, true, false);
+
+
+    }
+
+    private void setupVisualizerforMediaE() {
+
+
+
+
+        mVisualizerE = new Visualizer(mediaE.getAudioSessionId());
+
+        mVisualizerE.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
+        mVisualizerE.setDataCaptureListener(
+                new Visualizer.OnDataCaptureListener() {
+                    public void onWaveFormDataCapture(Visualizer visualizer,
+                                                      byte[] bytes, int samplingRate) {
+
+
+                        mVisualizerViewP.updateVisualizer(bytes);
+                    }
+
+                    public void onFftDataCapture(Visualizer visualizer,
+                                                 byte[] bytes, int samplingRate) {
+                    }
+                }, Visualizer.getMaxCaptureRate() / 2, true, false);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (isFinishing() && mMediaPlayer != null) {
+            mVisualizerP.release();
+            mVisualizerE.release();
+            mVisualizerViewP.setVisibility(View.GONE);
+        }
+    }
 
 
 }
+
+
 
 
 
