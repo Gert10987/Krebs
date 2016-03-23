@@ -1,0 +1,1305 @@
+Index: .idea/.name
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/.name	(date 1458110582000)
++++ .idea/.name	(date 1458268268000)
+@@ -1,1 +1,1 @@
+-KrepsMethodOnline
+\ No newline at end of file
++KrepsMethodOnline - Kopia - Kopia
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/misc.xml	(date 1458110582000)
++++ .idea/misc.xml	(date 1458268268000)
+@@ -37,7 +37,7 @@
+     <ConfirmationsSetting value="0" id="Add" />
+     <ConfirmationsSetting value="0" id="Remove" />
+   </component>
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/build/classes" />
+   </component>
+   <component name="ProjectType">
+\ No newline at end of file
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/modules.xml	(date 1458110582000)
++++ .idea/modules.xml	(date 1458268268000)
+@@ -2,7 +2,7 @@
+ <project version="4">
+   <component name="ProjectModuleManager">
+     <modules>
+-      <module fileurl="file://$PROJECT_DIR$/KrepsMethodOnline.iml" filepath="$PROJECT_DIR$/KrepsMethodOnline.iml" />
++      <module fileurl="file://$PROJECT_DIR$/KrepsMethodOnline - Kopia - Kopia.iml" filepath="$PROJECT_DIR$/KrepsMethodOnline - Kopia - Kopia.iml" />
+       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+     </modules>
+   </component>
+\ No newline at end of file
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/vcs.xml	(date 1458110582000)
++++ .idea/vcs.xml	(date 1458268268000)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="VcsDirectoryMappings">
+-    <mapping directory="" vcs="" />
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(date 1458110582000)
++++ app/src/main/AndroidManifest.xml	(date 1458268268000)
+@@ -6,6 +6,7 @@
+     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+     <uses-permission android:name="android.permission.INTERNET"/>
+     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"></uses-permission>
++
+     <application
+         android:name=".Singleton"
+         android:allowBackup="true"
+@@ -16,7 +17,7 @@
+         <activity
+             android:name=".MainActivity"
+             android:label="@string/app_name"
+-            android:theme="@style/AppTheme">
++            android:theme="@style/AppTheme.NoActionBar">
+             <intent-filter>
+ 
+                 <action android:name="android.intent.action.MAIN" />
+Index: app/src/main/java/info/krepsmethod/ConnectForAudio.java
+===================================================================
+--- app/src/main/java/info/krepsmethod/ConnectForAudio.java	(date 1458268268000)
++++ app/src/main/java/info/krepsmethod/ConnectForAudio.java	(date 1458268268000)
+@@ -0,0 +1,149 @@
++package info.krepsmethod;
++
++import android.media.AudioManager;
++import android.media.MediaPlayer;
++import android.util.Log;
++
++import org.apache.commons.net.ftp.FTP;
++import org.apache.commons.net.ftp.FTPClient;
++
++import static java.lang.Thread.sleep;
++
++/**
++ * Created by Paweł on 2016-03-17.
++ */
++public class ConnectForAudio implements Runnable {
++
++
++    private MediaPlayer mediaP = new MediaPlayer();
++    private MediaPlayer mediaE = new MediaPlayer();
++    private String uP;
++    private String uE;
++    private int durPol;
++    private int durEn;
++
++    public ConnectForAudio(MediaPlayer mediaP, MediaPlayer mediaE, String uP, String uE) {
++        this.mediaE = mediaE;
++        this.mediaP = mediaP;
++        this.uP = uP;
++        this.uE = uE;
++
++
++    }
++
++    @Override
++    public void run() {
++
++        new Thread(new Runnable() {
++            @Override
++            public void run() {
++
++                try {
++
++                    FTPClient con = null;
++                    con = new FTPClient();
++                    con.connect("95.211.80.5");
++
++                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
++                        con.enterLocalPassiveMode(); // important!
++                        con.setFileType(FTP.BINARY_FILE_TYPE);
++
++                        try {
++
++                            playFromFTP(mediaP, mediaE, uP, uE);
++
++
++                        } catch (Exception e) {
++                            e.printStackTrace();
++                        }
++                        con.logout();
++                        con.disconnect();
++
++                    }
++
++
++                } catch (Exception e) {
++                    Log.v("download result", "failed");
++                    e.printStackTrace();
++                }
++
++
++            }
++        }).start();
++
++
++    }
++
++
++    public int playFromFTP(MediaPlayer mediaP, final MediaPlayer mediaE, String uP, final String uE) throws Exception {
++
++//        mediaP.setDataSource(uP);
++       // mediaP.setAudioStreamType(AudioManager.STREAM_MUSIC);
++        mediaP.prepareAsync();
++        durPol = mediaP.getDuration();
++        mediaP.start();// odtworzenie Polskiego slowa
++
++
++        new Thread(new Runnable() { // utworzenie nowego watku
++            @Override
++            public void run() {
++
++
++                try {
++                    sleep(durPol * 2); // przerwa na odtworzenie i powtorzenie poolskiego slowa
++                    playSoundEnglish(mediaE, uE);// odegranie angioelskiego slwoa
++
++                } catch (Exception e) {
++                    e.printStackTrace();
++                }
++            }
++        }).start();
++
++
++        return durPol;
++
++    }
++
++
++    protected int playSoundEnglish(MediaPlayer mediaE, final String uE) throws Exception {
++
++        //  mediaE.setDataSource(uE);
++      //  mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
++        mediaE.prepare();
++        mediaE.setLooping(false); // setlooping ustawione na false, przekazuje wykonanie do setOnCompletionListener
++        mediaE.start();
++        mediaE.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
++
++
++            int liczbaPowtorzen = 0;// zmienna odpowidzialna za licze powtoren
++
++
++            @Override
++            public void onCompletion(MediaPlayer E) {
++
++
++                if (liczbaPowtorzen < 1) { //warunek ile ma byc powtorzen
++
++
++                    try {
++                        synchronized (this) {
++                            wait(E.getDuration());  // przerwa na samodzielne powtorzenie
++                        }
++
++                    } catch (Exception e) {
++                        e.printStackTrace();
++                    }
++                    E.start();
++                    liczbaPowtorzen++;
++                }
++            }
++
++
++        });
++
++
++        return durEn;
++    }
++
++
++}
+Index: app/src/main/java/info/krepsmethod/ConnectForDur.java
+===================================================================
+--- app/src/main/java/info/krepsmethod/ConnectForDur.java	(date 1458268268000)
++++ app/src/main/java/info/krepsmethod/ConnectForDur.java	(date 1458268268000)
+@@ -0,0 +1,133 @@
++package info.krepsmethod;
++
++import android.media.AudioManager;
++import android.media.MediaPlayer;
++import android.util.Log;
++import android.widget.Toast;
++
++import org.apache.commons.net.ftp.FTP;
++import org.apache.commons.net.ftp.FTPClient;
++
++import java.io.IOException;
++
++/**
++ * Created by Paweł on 2016-03-17.
++ */
++public class ConnectForDur implements Runnable {
++
++    int durPol;
++    int durEn;
++    int i;
++
++    MediaPlayer mediaE = new MediaPlayer();
++    MediaPlayer mediaP = new MediaPlayer();
++
++    public String uP;
++    public String uE;
++
++
++    public ConnectForDur(MediaPlayer mediaE, MediaPlayer mediaP, String uP, String uE) {
++        this.mediaE = mediaE;
++        this.mediaP = mediaP;
++        this.uE = uE;
++        this.uP = uP;
++
++    }
++
++    @Override
++    public void run() {
++
++
++        new Thread(new Runnable() {
++            @Override
++            public void run() {
++
++                try {
++
++                    FTPClient con = null;
++
++                    con = new FTPClient();
++                    con.connect("95.211.80.5");
++
++                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
++                        con.enterLocalPassiveMode(); // important!
++                        con.setFileType(FTP.BINARY_FILE_TYPE);
++
++                        try {
++
++                            MediaPlayer e = new MediaPlayer();
++                            MediaPlayer p = new MediaPlayer();
++
++
++
++                            e.setDataSource(uE);
++                            p.setDataSource(uP);
++                            i = d(e.getDuration(),
++                                    p.getDuration());
++
++
++
++                        } catch (Exception ee) {
++                            ee.printStackTrace();
++                        }
++
++
++                        con.logout();
++                        con.disconnect();
++
++                    }
++
++
++                } catch (Exception e) {
++                    Log.v("download result", "failed");
++                    e.printStackTrace();
++                }
++
++
++            }
++        }).start();
++
++
++    }
++
++
++    public int d(int durEn, int durPol) {
++
++        int x = 0;
++
++        x = ((durEn + durPol + durEn) * 2 / 100);
++
++        return x;
++
++    }
++
++    public int get() {
++
++        return i;
++
++    }
++
++    public int beforPlayP(MediaPlayer mediaP, String uP) throws IOException {
++
++
++        mediaP.setDataSource(uP);
++        mediaP.setAudioStreamType(AudioManager.STREAM_MUSIC);
++        mediaP.prepareAsync();
++        durPol = mediaP.getDuration();
++        return durPol;
++
++    }
++
++    public int beforePlayE(MediaPlayer mediaE, String uE) throws IOException {
++
++
++        mediaE.setDataSource(uE);
++        mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
++        mediaE.prepareAsync();
++        durEn = mediaE.getDuration();
++        return durEn;
++
++    }
++}
++
++
+Index: app/src/main/java/info/krepsmethod/CreateEnglishActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/info/krepsmethod/CreateEnglishActivity.java	(date 1458110582000)
++++ app/src/main/java/info/krepsmethod/CreateEnglishActivity.java	(date 1458268268000)
+@@ -116,9 +116,9 @@
+                     renameFileAudio(autoIncNextVal);
+                     insertAudio(autoIncNextVal);
+                     insertText();
+-                    deleteFromSD(autoIncNextVal);
+ 
+ 
++
+                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                     startActivity(intent);
+ 
+@@ -151,9 +151,10 @@
+                     track.stopRecording();
+                     Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show();
+                     zaladowanoNagranie.setText("zaladowano nagranie");
+-                    track.onDestroy();
++                //Api 21    track.onDestroy();
+ 
+ 
++
+                 } catch (Exception e) {
+                     e.printStackTrace();
+                 }
+@@ -174,10 +175,10 @@
+ 
+     public void insertText() {
+ 
+-        /*
+-        String Request : wyslanie zmiennej do Skryptu PHP
+ 
+-         */
++        //String Request : wyslanie zmiennej do Skryptu PHP
++
++
+         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                 new Response.Listener<String>() {
+                     @Override
+@@ -192,7 +193,6 @@
+                         Toast.makeText(getApplicationContext(), // Toast
+                                 "Data Inserted Successfully",
+                                 Toast.LENGTH_SHORT).show();
+-
+                     }
+                 },
+                 /*
+@@ -222,10 +222,8 @@
+                 params.put("PolishWordText", polishWordText);
+                 params.put("EnglishWordText", englishWordText);
+ 
+-
+                 return params;
+ 
+-
+             }
+ 
+ 
+@@ -237,42 +235,49 @@
+ 
+     }
+ 
+-    public void insertAudio(int id) {
++    public void insertAudio(final int id) {
+ 
+ 
+-        FTPClient con = null;
++        new Thread(new Runnable() {
++            @Override
++            public void run() {
+ 
+-        try {
++                try {
++                    FTPClient con = null;
+-            con = new FTPClient();
+-            con.connect("95.211.80.5");
++                    con = new FTPClient();
++                    con.connect("95.211.80.5");
+ 
+-            if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+-                con.enterLocalPassiveMode(); // important!
+-                con.setFileType(FTP.BINARY_FILE_TYPE);
+-                String pData = "/sdcard/KrebsFolderSound/" + id + "polishSound.3gpp";
+-                String eData = "/sdcard/KrebsFolderSound/" + id + "englishSound.3gpp";
++                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
++                        con.enterLocalPassiveMode(); // important!
++                        con.setFileType(FTP.BINARY_FILE_TYPE);
++                        String pData = "/sdcard/KrebsFolderSound/" + id + "polishSound.3gpp";
++                        String eData = "/sdcard/KrebsFolderSound/" + id + "englishSound.3gpp";
+ 
+-                FileInputStream pIn = new FileInputStream(new File(pData));
+-                boolean pResult = con.storeFile("/polishSound/" + id + "polish.3gpp", pIn);
++                        FileInputStream pIn = new FileInputStream(new File(pData));
++                        boolean pResult = con.storeFile("/polishSound/" + id + "polish.3gpp", pIn);
+ 
+-                FileInputStream eIn = new FileInputStream(new File(eData));
+-                boolean eResult = con.storeFile("/englishSound/" + id + "english.3gpp", eIn);
+-                pIn.close();
+-                eIn.close();
+-                if (pResult && eResult) Log.v("upload result", "succeeded");
+-                con.logout();
+-                con.disconnect();
++                        FileInputStream eIn = new FileInputStream(new File(eData));
++                        boolean eResult = con.storeFile("/englishSound/" + id + "english.3gpp", eIn);
++                        pIn.close();
++                        eIn.close();
++                        if (pResult && eResult) Log.v("upload result", "succeeded");
++                        con.logout();
++                        con.disconnect();
+ 
+-                deleteFromSD(id);
++                        deleteFromSD(id);
+ 
+ 
+-            }
+-        } catch (Exception e) {
+-            e.printStackTrace();
+-        }
++                    }
++                } catch (Exception e) {
++                    e.printStackTrace();
++                }
+ 
++
+-    }
++            }
++        }).start();
+ 
++
++    }
+ 
+     public void deleteFromSD(int id) {
+ 
+Index: app/src/main/java/info/krepsmethod/CreatePolishActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/info/krepsmethod/CreatePolishActivity.java	(date 1458110582000)
++++ app/src/main/java/info/krepsmethod/CreatePolishActivity.java	(date 1458268268000)
+@@ -136,7 +136,7 @@
+                     track.stopRecording();
+                     Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
+                     zaladowanoNagranie.setText("zaladowano nagranie");
+-                    track.onDestroy();
++
+ 
+ 
+                 } catch (Exception e) {
+Index: app/src/main/java/info/krepsmethod/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/info/krepsmethod/MainActivity.java	(date 1458110582000)
++++ app/src/main/java/info/krepsmethod/MainActivity.java	(date 1458268268000)
+@@ -4,9 +4,17 @@
+ 
+ import android.app.ProgressDialog;
+ import android.content.Intent;
++import android.media.AudioManager;
++import android.media.MediaMetadataRetriever;
+ import android.media.MediaPlayer;
+ import android.os.AsyncTask;
+ import android.os.Bundle;
++import android.os.Handler;
++import android.provider.MediaStore;
++import android.support.design.widget.FloatingActionButton;
++import android.support.design.widget.Snackbar;
++import android.support.v7.app.AppCompatActivity;
++import android.support.v7.widget.Toolbar;
+ import android.util.Log;
+ import android.view.ContextMenu;
+ import android.view.Menu;
+@@ -41,8 +49,10 @@
+ import java.util.Comparator;
+ import java.util.HashMap;
+ 
+-public class MainActivity extends Activity implements AdapterView.OnItemClickListener {
++import static java.lang.Thread.sleep;
+ 
++public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
++
+     /*
+ 
+     Głowna klasa programu KRrebsMethod
+@@ -58,38 +68,40 @@
+     MediaPlayer mediaP = new MediaPlayer();
+     MediaPlayer mediaE = new MediaPlayer();
+ 
++
+     String url = "http://krebsmethod.cba.pl/read.php";
+     ArrayList<HashMap<String, String>> Item_List;
+     ProgressDialog PD;
+     ListAdapter adapter;
+     ListView list;
+     TextView emptyList;
+-    ProgressBar PB;
+-    int DurationFullAudio = 0, postLevelProgress = 1;
++    ProgressDialog PB;
+ 
++    int DurationFullAudioa = 0, postLevelProgress = 1;
++    Handler updateBarHandler;
+ 
++
+     // JSON Node names
+     public static final String ITEM_ID = "id";
+     public static final String POLISH_WORD = "PolishWordText";
+     public static final String ENGLISH_WORD = "EnglishWordText";
++    private MediaPlayer mediaPlayer;
++    private int durPol;
++    private int durEn;
+ 
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         setContentView(R.layout.activity_main);
++        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
++        setSupportActionBar(toolbar);
+ 
+ 
+-
+-
+         Item_List = new ArrayList<HashMap<String, String>>();
+         list = (ListView) findViewById(R.id.listView1);
+ 
+-        PB = (ProgressBar) findViewById(R.id.progressBar);
+-        PB.setVisibility(View.GONE);
+ 
+-
+-
+         PD = new ProgressDialog(this);
+         PD.setMessage("Loading.....");
+         PD.setCancelable(false);
+@@ -112,7 +124,7 @@
+                 String uP = "http://krebsmethod.cba.pl/PolishSound/" + idT + "polish.3gpp";
+                 String uE = "http://krebsmethod.cba.pl/EnglishSound/" + idT + "english.3gpp";
+ 
+-                if (PB.isShown() ||  postLevelProgress == DurationFullAudio) {
++                if (DurationFullAudioa == 1) {
+ 
+                     Toast.makeText(getApplicationContext(), "stop", Toast.LENGTH_SHORT).show();
+ 
+@@ -124,9 +136,7 @@
+                         mediaP = new MediaPlayer();
+                         mediaE = new MediaPlayer();
+ 
+-                        PB.setVisibility(View.GONE);
+ 
+-
+                     } catch (Exception e) {
+                         e.printStackTrace();
+                     }
+@@ -135,56 +145,70 @@
+ 
+                     try {
+ 
+-                        progressBar();
+-                        connectToFTP(uP, uE);
++                    /*    ConnectForDur connectForDur = new
++                                ConnectForDur(mediaE, mediaP, uP, uE);
+ 
+-                    } catch (Exception e) {
+-                        e.printStackTrace();
+-                    }
+-                }
++                        connectForDur.run();
+ 
+ 
++                        int x = connectForDur.get();*/
+ 
++                        run(uP, uE);
+ 
++                        launcherDialogBar(d(beforePlayE(mediaE,uE), beforPlayP(mediaP, uP)));
+ 
+ 
++                        /*ConnectForAudio connectForAudio = new
++                                ConnectForAudio(mediaP, mediaE, uP, uE);
++
++                        connectForAudio.run();*/
++
++
++                        mediaP = new MediaPlayer();
++                        mediaE = new MediaPlayer();
++
++                    } catch (Exception e) {
++                        e.printStackTrace();
+-            }
++                    }
++                }
++
++
++            }
+         });
+ 
+     }
+ 
+-    // tworzenie menu
+-
+     @Override
+     public boolean onCreateOptionsMenu(Menu menu) {
+-        super.onCreateOptionsMenu(menu);
+-
++        // Inflate the menu; this adds items to the action bar if it is present.
+         getMenuInflater().inflate(R.menu.menu_main, menu);
+-
+         return true;
+     }
+ 
+-    // obsluga przyciskow menu
+-
+     @Override
+     public boolean onOptionsItemSelected(MenuItem item) {
+-
++        // Handle action bar item clicks here. The action bar will
++        // automatically handle clicks on the Home/Up button, so long
++        // as you specify a parent activity in AndroidManifest.xml.
+         int id = item.getItemId();
+ 
+-        if (id == R.id.addMenuClick) {
++        //noinspection SimplifiableIfStatement
++        if (id == R.id.action_settings) {
+ 
+             Intent intent = new Intent(getApplicationContext(), CreatePolishActivity.class);
+             startActivity(intent);
+-
+-        } else {
+-
+-            Intent i = new Intent(getApplicationContext(), MainActivity.class);
+-            startActivity(i);
++            return true;
+         }
+ 
+         return super.onOptionsItemSelected(item);
+     }
+ 
++    // tworzenie menu
++
++
++    // obsluga przyciskow menu
++
++
+     // KONIEC METODY ON CREATE********************************************
+ 
+ 
+@@ -409,53 +433,152 @@
+     }
+ 
+ 
+-    public FTPClient connectToFTP(String uP, String uE) {
++    public void launcherDialogBar(final int DurationFullAudio) {
+ 
+-        FTPClient con = null;
+ 
++        PB = new ProgressDialog(MainActivity.this);
++        PB.setMessage("Odtwaraznie");
++        PB.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
++        setProgress(0);
++        PB.setMax(DurationFullAudio);
++        PB.show();
++
++        new Thread(new Runnable() {
++            @Override
++            public void run() {
++                while (PB.getProgress() < DurationFullAudio) {
++
+-        try {
++                    try {
++                        sleep(1000);
++                        PB.incrementProgressBy(10);
++                    } catch (InterruptedException e) {
++                        e.printStackTrace();
++                    }
++
++                    if (PB.getProgress() == PB.getMax()) {
++                        PB.dismiss();
++                        PB.setProgress(0);
++
++                    }
++
++                }
++            }
++
++        }).start();
++    }
++
++
++    int i;
++
++    public void run(final String uP, final String uE) {
++
++
++        new Thread(new Runnable() {
++            @Override
++            public void run() {
++
++                try {
++
++                    FTPClient con = null;
++                    MediaPlayer e = new MediaPlayer();
++                    MediaPlayer p = new MediaPlayer();
++
+-            con = new FTPClient();
+-            con.connect("95.211.80.5");
++                    con = new FTPClient();
++                    con.connect("95.211.80.5");
+ 
+-            if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+-                con.enterLocalPassiveMode(); // important!
+-                con.setFileType(FTP.BINARY_FILE_TYPE);
++                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
++                        con.enterLocalPassiveMode(); // important!
++                        con.setFileType(FTP.BINARY_FILE_TYPE);
+ 
+-                try {
++                        try {
+-                    track.playFromFTP(mediaP, uP, mediaE, uE);
+-                } catch (Exception e) {
+-                    e.printStackTrace();
++
++
++                            beforePlayE(e, uE);
++                            beforPlayP(p, uP);
++                            //d(beforePlayE(e, uE), beforPlayP(p, uP));
++
++
++                        } catch (Exception ee) {
++                            ee.printStackTrace();
+-                }
++                        }
++
++
+-                con.logout();
+-                con.disconnect();
++                        con.logout();
++                        con.disconnect();
+ 
+-
+-            }
++                    }
+ 
+ 
+-        } catch (Exception e) {
+-            Log.v("download result", "failed");
+-            e.printStackTrace();
+-        }
++                } catch (Exception e) {
++                    Log.v("download result", "failed");
++                    e.printStackTrace();
++                }
+ 
+-        return con;
+ 
++            }
++        }).start();
+ 
++
+     }
+ 
++    public int get() {
+ 
++        return i;
+ 
+-    public void progressBar() {
++    }
+ 
+ 
+-        class Async extends AsyncTask<Integer, Integer, Void> {
++    public int d(int durEn, int durPol) {
+ 
++        int x = 0;
+ 
++        x = ((((durEn + durPol) * 2) + durEn) / 100);
+ 
++        return x;
+ 
++    }
++
++    public int beforPlayP(MediaPlayer mediaP, String uP) throws IOException {
++
++
++        mediaP.setDataSource(uP);
++        mediaP.setAudioStreamType(AudioManager.STREAM_MUSIC);
++        mediaP.prepare();
++        durPol = mediaP.getDuration();
++        return durPol;
++
++    }
++
++    public int beforePlayE(MediaPlayer mediaE, String uE) throws IOException {
++
++
++        mediaE.setDataSource(uE);
++        mediaE.setAudioStreamType(AudioManager.STREAM_MUSIC);
++        mediaE.prepare();
++        durEn = mediaE.getDuration();
++        return durEn;
++
++    }
++
++
++}
++
++
++
++
++
++
++
++   /* public void progressBar() {
++
++
++        class Async extends AsyncTask<Integer, Integer, Void> {
++
+             @Override
+             protected Void doInBackground(Integer... params) {
+ 
++
++
+                 for (int count = 0; count < DurationFullAudio; count++) {
+                     try {
+                         Thread.sleep(100);
+@@ -467,7 +590,6 @@
+                 }
+ 
+ 
+-
+                 return null;
+ 
+             }
+@@ -476,8 +598,9 @@
+             protected void onPreExecute() {
+ 
+ 
+-                DurationFullAudio = ((mediaP.getDuration() * 2) + (mediaE.getDuration() * 2));
++
+                 PB.setVisibility(View.VISIBLE);
++                PB.setProgress(1);
+ 
+                 super.onPreExecute();
+ 
+@@ -498,17 +621,15 @@
+ 
+ 
+ 
+-
+-
+             }
+ 
+         }
+ 
+         new Async().execute();
+-    }
++    }*/
+ 
+ 
+-}
++
+ 
+ 
+ 
+Index: app/src/main/java/info/krepsmethod/Track.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/info/krepsmethod/Track.java	(date 1458110582000)
++++ app/src/main/java/info/krepsmethod/Track.java	(date 1458268268000)
+@@ -29,13 +29,11 @@
+     //****************** Klasa Track opowiedzialna za nagrywanie ,
+     // odtwarzanie nagranTworzenie zmiennych
+ 
+-
++    int durPol;
++    int durEn;
+     private MediaPlayer mediaPlayer;
+-
+     private MediaRecorder recorder;
+-
+     String OutputFile;
+-
+     String SoundInList;
+ 
+ 
+@@ -65,6 +63,7 @@
+     protected void stopRecording() throws Exception {
+         if (recorder != null) {
+             recorder.stop();
++            recorder.release();
+         }
+     }
+ 
+@@ -133,83 +132,98 @@
+     }
+ 
+ 
+-    public void playFromFTP
+-            (final MediaPlayer PolishAudio, final String uP,
+-             final MediaPlayer EnglishAudio, final String uE) throws Exception {
++    public int playFromFTP(String uP, final String uE) throws Exception {
+ 
+ 
+-        playSoundPolish(PolishAudio, uP); // odtworzenie Polskiego slowa
++        mediaPlayer.setDataSource(uP);
++        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
++        mediaPlayer.prepare();
++        durPol = mediaPlayer.getDuration();
+ 
++        mediaPlayer.start();// odtworzenie Polskiego slowa
++       // mediaPlayer.release();
++
+         new Thread(new Runnable() { // utworzenie nowego watku
+             @Override
+             public void run() {
+ 
++
+                 try {
+-                    sleep(PolishAudio.getDuration() * 2); // przerwa na odtworzenie i powtorzenie poolskiego slowa
+-                    playSoundEnglish(EnglishAudio, uE);// odegranie angioelskiego slwoa
++                    sleep(durPol * 2); // przerwa na odtworzenie i powtorzenie poolskiego slowa
++                    durEn = playSoundEnglish(uE);// odegranie angioelskiego slwoa
++
+                 } catch (Exception e) {
+                     e.printStackTrace();
+                 }
+             }
+         }).start();
+ 
++
++        return ((durPol + durEn));
++
+     }
+ 
+-    protected int playSoundPolish(MediaPlayer PolishAudio, String uP) throws Exception {
++    protected int playSoundPolish(String uP) throws Exception {
+ 
+         // killMediaPlayer(media);
+ 
+ 
+-        PolishAudio.setDataSource(uP);
+-        PolishAudio.setAudioStreamType(AudioManager.STREAM_MUSIC);
+-        PolishAudio.prepare();
+-        PolishAudio.start();
++        return mediaPlayer.getDuration();
+ 
+ 
+-        return PolishAudio.getDuration();
+-
+     }
+ 
+ 
+-    protected void playSoundEnglish(MediaPlayer EnglishAudio, String uE) throws Exception {
++    protected int playSoundEnglish(String uE) throws Exception {
+ 
+-        // killMediaPlayer(media);
++       // mediaPlayer.release();
+ 
+-        EnglishAudio.setDataSource(uE);
+-        EnglishAudio.setAudioStreamType(AudioManager.STREAM_MUSIC);
+-        EnglishAudio.prepare();
+-        EnglishAudio.setLooping(false); // setlooping ustawione na false, przekazuje wykonanie do setOnCompletionListener
+-        EnglishAudio.start();
++        mediaPlayer.setDataSource(uE);
+ 
+-        EnglishAudio.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
++        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
++        mediaPlayer.prepare();
+ 
++        mediaPlayer.setLooping(false); // setlooping ustawione na false, przekazuje wykonanie do setOnCompletionListener
++        mediaPlayer.start();
+ 
+-            int liczbaPowtorzen = 0;// zmienna odpowidzialna za licze powtoren
++        new Thread(new Runnable() {
++            @Override
++            public void run() {
+ 
++                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+ 
++
++                    int liczbaPowtorzen = 0;// zmienna odpowidzialna za licze powtoren
++                    int dur = 0;
++
+-            @Override
+-            public void onCompletion(MediaPlayer EnglishAudio) {
++                    @Override
++                    public void onCompletion(MediaPlayer EnglishAudio) {
+ 
++
+-                if (liczbaPowtorzen < 1) { //warunek ile ma byc powtorzen
++                        if (liczbaPowtorzen < 1) { //warunek ile ma byc powtorzen
+ 
+ 
+-                    try {
+-                        synchronized (this) {
++                            try {
++                                synchronized (this) {
+-                            wait(EnglishAudio.getDuration());  // przerwa na samodzielne powtorzenie
++                                    Thread.sleep(EnglishAudio.getDuration());  // przerwa na samodzielne powtorzenie
+-                        }
++                                }
+ 
+-                    } catch (Exception e) {
+-                        e.printStackTrace();
+-                    }
+-                    EnglishAudio.start();
+-                    liczbaPowtorzen++;
+-                }
+-            }
++                            } catch (Exception e) {
++                                e.printStackTrace();
++                            }
++                            EnglishAudio.start();
++                            liczbaPowtorzen++;
++                        }
++                    }
+ 
+ 
+-        });
++                });
+ 
++            }
++        }).start();
+ 
++
++        return mediaPlayer.getDuration();
+     }
+ 
+ 
+Index: app/src/main/res/layout/activity_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_main.xml	(date 1458110582000)
++++ app/src/main/res/layout/activity_main.xml	(date 1458268268000)
+@@ -1,46 +1,49 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<RelativeLayout
+-    xmlns:android="http://schemas.android.com/apk/res/android"
++
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    xmlns:app="http://schemas.android.com/apk/res-auto"
+-    xmlns:tools="http://schemas.android.com/tools"
+-    android:layout_width="match_parent"
+-    android:layout_height="match_parent"
+-    android:fitsSystemWindows="true"
++xmlns:app="http://schemas.android.com/apk/res-auto"
++xmlns:tools="http://schemas.android.com/tools"
++android:layout_width="match_parent"
++android:layout_height="match_parent"
++android:fitsSystemWindows="true"
+-    tools:context="info.krepsmethod.MainActivity">
++tools:context="info.actrionbar.MainActivity">
+ 
+-    <RelativeLayout
+-        android:layout_width="wrap_content"
+-        android:layout_height="match_parent"
+-        android:id="@+id/relativeLayout2">
++<android.support.design.widget.AppBarLayout
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:theme="@style/AppTheme.AppBarOverlay"
++    android:id="@+id/relativeLayout">
+ 
++    <android.support.v7.widget.Toolbar
++        android:id="@+id/toolbar"
++        android:layout_width="match_parent"
++        android:layout_height="?attr/actionBarSize"
++        android:background="?attr/colorPrimary"
++        app:popupTheme="@style/AppTheme.PopupOverlay" />
++
++</android.support.design.widget.AppBarLayout>
++
+     <ListView
+         android:layout_width="wrap_content"
+-        android:layout_height="match_parent"
++        android:layout_height="wrap_content"
+         android:id="@+id/listView1"
+-        android:layout_above="@+id/progressBar" />
++        android:layout_centerHorizontal="true"
++        android:layout_below="@+id/relativeLayout"
++        style="@style/ListView"/>
+ 
+-    <ProgressBar
+-            style="?android:attr/progressBarStyleHorizontal"
+-            android:layout_width="match_parent"
+-            android:layout_height="44dp"
+-            android:id="@+id/progressBar"
+-            android:layout_marginBottom="0dp"
+-            android:layout_alignParentBottom="true"
+-            android:layout_centerHorizontal="true" />
+-
+-         />
+-
+-    </RelativeLayout>
+-
+     <TextView
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:textAppearance="?android:attr/textAppearanceMedium"
+         android:id="@+id/emptyList"
+         android:text=" "
+-        android:layout_centerHorizontal="true"
+-        android:layout_alignParentTop="true" />
++        android:layout_centerVertical="true"
++        android:layout_centerHorizontal="true" />
+ 
++
+ </RelativeLayout>
++
++
++
+ 
+ 
+Index: app/src/main/res/layout/text_view_for_list.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/text_view_for_list.xml	(date 1458110582000)
++++ app/src/main/res/layout/text_view_for_list.xml	(date 1458268268000)
+@@ -6,7 +6,8 @@
+ 
+     <RelativeLayout
+         android:layout_width="match_parent"
+-        android:layout_height="wrap_content">
++        android:layout_height="wrap_content"
++        style="">
+ 
+         <TextView
+             android:layout_width="wrap_content"
+@@ -15,6 +16,7 @@
+             android:id="@+id/textViewEnglishWord"
+             android:layout_marginLeft="@dimen/activity_horizontal_margin"
+             android:textColor="#050505"
++            android:textStyle="normal"
+            />
+ 
+         <TextView
+@@ -26,6 +28,7 @@
+             android:layout_alignRight="@+id/textViewEnglishWord"
+             android:layout_alignEnd="@+id/textViewEnglishWord"
+             android:textColor="#000000"
++            android:textStyle="italic"
+             />
+ 
+         <ImageView
+@@ -46,7 +49,8 @@
+             android:textAppearance="?android:attr/textAppearanceSmall"
+             android:id="@+id/IdTextView"
+             android:layout_centerVertical="true"
+-            android:layout_centerHorizontal="true" />
++            android:layout_centerHorizontal="true"
++            android:textStyle="italic"/>
+ 
+ 
+ 
+\ No newline at end of file
+Index: app/src/main/res/menu/menu_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/menu/menu_main.xml	(date 1458110582000)
++++ app/src/main/res/menu/menu_main.xml	(date 1458268268000)
+@@ -1,15 +1,10 @@
+-<menu
+-    tools:context="info.krepsmethod.MainActivity"
++<menu xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
+     xmlns:tools="http://schemas.android.com/tools"
+-
+-    xmlns:android="http://schemas.android.com/apk/res/android">
++    tools:context="info.actrionbar.MainActivity">
+     <item
+-        android:id="@+id/addMenuClick"
++        android:id="@+id/action_settings"
++        android:orderInCategory="100"
+         android:title="@string/Dodaj"
+-        android:onClick="DodajAcivity"
+-        />
+-    <item
+-        android:id="@+id/refreshMenuClick"
+-        android:title="@string/referesh"
+-        />
++        app:showAsAction="never" />
+ </menu>
+Index: app/src/main/res/values/colors.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/colors.xml	(date 1458110582000)
++++ app/src/main/res/values/colors.xml	(date 1458268268000)
+@@ -3,4 +3,6 @@
+     <color name="colorPrimary">#3F51B5</color>
+     <color name="colorPrimaryDark">#303F9F</color>
+     <color name="colorAccent">#FF4081</color>
++    <color name="light_grey">#cccccc</color>
++
+ </resources>
+Index: app/src/main/res/values/styles.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/styles.xml	(date 1458110582000)
++++ app/src/main/res/values/styles.xml	(date 1458268268000)
+@@ -17,4 +17,12 @@
+ 
+     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+ 
++    <style name="ListView" parent="@android:style/Widget.ListView">
++        <item name="android:background">@color/light_grey</item>
++        <item name="android:cacheColorHint">@android:color/transparent</item>
++        <item name="android:divider">@android:color/transparent</item>
++        <item name="android:dividerHeight">0dp</item>
++
++    </style>
++
+ </resources>
