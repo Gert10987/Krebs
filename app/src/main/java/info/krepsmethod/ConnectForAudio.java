@@ -22,9 +22,11 @@ public class ConnectForAudio implements Runnable {
      */
     private MediaPlayer mediaP = new MediaPlayer();
     private MediaPlayer mediaE = new MediaPlayer();
+
     private String uP;
     private String uE;
     private int durPol;
+    ProgressDialogTask progressDialogTask = new ProgressDialogTask();
 
 
 
@@ -32,14 +34,15 @@ public class ConnectForAudio implements Runnable {
     /*
      Utworzenie konstruktora Klasy*********************
     */
+
+
     public ConnectForAudio(MediaPlayer mediaP, MediaPlayer mediaE,
-                           String uP, String uE) {
+                           String uP, String uE, ProgressDialogTask progressDialogTask) {
         this.mediaE = mediaE;
         this.mediaP = mediaP;
         this.uP = uP;
         this.uE = uE;
-
-
+        this.progressDialogTask = progressDialogTask;
 
     }
 
@@ -92,48 +95,6 @@ public class ConnectForAudio implements Runnable {
     }
 
 
-    public void runInLearn()  {
-
-
-
-                try {
-
-                    FTPClient con = null; // Utworzenie zmiennej do polaczenia
-                    con = new FTPClient();
-                    con.connect("95.211.80.5"); // ustawienie adresu FTP
-
-                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
-                        con.enterLocalPassiveMode(); // ustawienie passiveMode
-                        con.setFileType(FTP.BINARY_FILE_TYPE); // typ Plikow Binarny
-
-                        try {
-
-                            playFromFTP(mediaP, mediaE, uP, uE); //wywolanie metody playFromFTP
-
-
-                        } catch (Exception e) {
-                            e.printStackTrace(); //wyjatki
-                        }
-                        con.logout(); // wylogowanie z FTP
-                        con.disconnect(); // Rozlacznie z FTP
-
-                    }
-
-
-                } catch (Exception e) { // Wyjatki
-                    Log.v("download result", "failed"); // LOG
-                    e.printStackTrace();
-                }
-
-
-
-
-            }
-
-
-
-
-
 
 
 
@@ -147,6 +108,14 @@ public class ConnectForAudio implements Runnable {
         mediaP.setDataSource(uP);
         mediaP.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaP.prepare();
+        mediaP.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+
+                progressDialogTask.run();
+
+            }
+        });
         durPol = mediaP.getDuration();
         mediaP.start();// odtworzenie Polskiego slowa
 
@@ -225,6 +194,14 @@ public class ConnectForAudio implements Runnable {
 
 
     }
+
+
+
+
+
+
+
+
 
 
 

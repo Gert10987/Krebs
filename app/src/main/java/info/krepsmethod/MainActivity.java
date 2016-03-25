@@ -450,18 +450,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         ConnectForAudio connectForAudio = new
-                ConnectForAudio(mediaP, mediaE, uP, uE);
+                ConnectForAudio(mediaP, mediaE, uP, uE, progressDialogTask);
 
-        Thread threadDuration = new Thread(connectForDuration);
 
-        threadDuration.start();
-
-        threadDuration.join();
+        connectForDuration.run();
 
         connectForAudio.run();
-
-        progressDialogTask.run();
-
 
 
 

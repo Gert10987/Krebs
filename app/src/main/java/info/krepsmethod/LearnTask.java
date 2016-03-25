@@ -54,13 +54,10 @@ public class LearnTask implements Runnable {
             connectForDuration.runInLearn();
 
 
-            ConnectForAudio connectForAudio = new
-                    ConnectForAudio(mediaP, mediaE, uP, uE);
-            connectForAudio.runInLearn();
+            ConnectForAudioLearn connectForAudioLearn = new
+                    ConnectForAudioLearn(mediaP, mediaE, uP, uE);
 
-
-
-            x = new Thread(connectForAudio);
+            x = new Thread(connectForAudioLearn);
 
             x.start();
 

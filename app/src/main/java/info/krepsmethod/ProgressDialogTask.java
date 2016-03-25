@@ -18,7 +18,7 @@ public class ProgressDialogTask implements Runnable {
     Klasa sluzy do wyswietlania ProhressDialoga podczas odtworzenia audio***************
      */
     private ProgressDialog PB;
-    final private int DurationFullAudio;
+    private int DurationFullAudio;
     private MediaPlayer mediaE = new MediaPlayer();
     private MediaPlayer mediaP = new MediaPlayer();
     Context context;
@@ -33,6 +33,10 @@ public class ProgressDialogTask implements Runnable {
         this.context = context;
         this.mediaP = mediaP;
         this.mediaE = mediaE;
+    }
+
+    public ProgressDialogTask(){
+
     }
 
     /*

@@ -66,6 +66,7 @@ public class LearnActivity extends AppCompatActivity {
         buttonLearn = (Button) findViewById(R.id.buttonLearn);
 
         mVisualizerViewP = (VisualizerView) findViewById(R.id.vP);
+        mVisualizerViewE = (VisualizerView) findViewById(R.id.vE);
 
 
         c = getIntent().getStringArrayListExtra("list");
@@ -153,13 +154,13 @@ public class LearnActivity extends AppCompatActivity {
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        mMediaPlayerC = new MediaPlayer();
+        mMediaPlayer = new MediaPlayer();
 
         setupVisualizerforMediaE();
 
         mVisualizerE.setEnabled(true);
 
-        mMediaPlayerC.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 mVisualizerE.setEnabled(false);
@@ -211,7 +212,7 @@ public class LearnActivity extends AppCompatActivity {
                                                       byte[] bytes, int samplingRate) {
 
 
-                        mVisualizerViewP.updateVisualizer(bytes);
+                        mVisualizerViewE.updateVisualizer(bytes);
                     }
 
                     public void onFftDataCapture(Visualizer visualizer,
@@ -227,7 +228,7 @@ public class LearnActivity extends AppCompatActivity {
         if (isFinishing() && mMediaPlayer != null) {
             mVisualizerP.release();
             mVisualizerE.release();
-            mVisualizerViewP.setVisibility(View.GONE);
+
         }
     }
 

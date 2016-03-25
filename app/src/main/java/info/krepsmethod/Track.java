@@ -50,6 +50,7 @@ public class Track extends Activity {
         recorder.setOutputFile(OutputFile);
         recorder.prepare();
         recorder.start();
+
     }
 
     /*
