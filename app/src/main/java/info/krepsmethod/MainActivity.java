@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     MediaPlayer mediaP = new MediaPlayer();
     MediaPlayer mediaE = new MediaPlayer();
-    String url = "http://krebsmethod.cba.pl/read.php";
+    String url = "url PHP script read.php";
     ArrayList<HashMap<String, String>> Item_List; // Lista do zczytywania jsonow z bazy
     ProgressDialog PD;
     ListAdapter adapter;
@@ -114,8 +114,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 String idT = idTextView.getText().toString();
 
                 //url'e do plikow audio
-                String uP = "http://krebsmethod.cba.pl/PolishSound/" + idT + "polish.3gpp";
-                String uE = "http://krebsmethod.cba.pl/EnglishSound/" + idT + "english.3gpp";
+                String uP = "url with diretory Polish Words" + idT + "polish.3gpp";
+                String uE = "url with diretory English Words" + idT + "english.3gpp";
 
                 //Warunek gdy ProgressDialog jest pokzany
                 if (PB.isShowing()) {
@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void deleteText(String id) {
         PD.show();
         //url do skryptu
-        String delete_url = "http://krebsmethod.cba.pl/delete.php?id="
+        String delete_url = "url PHP Scirpt delete.php?id="
                 + id;
 
 
@@ -380,9 +380,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 try {
                     con = new FTPClient();
-                    con.connect("95.211.80.5");
+                    con.connect("FTP adress");
 
-                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+                    if (con.login("login", "pass")) {
                         con.enterLocalPassiveMode(); // important!
                         String pData = "/polishSound/" + id + "polish.3gpp";
                         String eData = "/englishSound/" + id + "english.3gpp";
@@ -470,12 +470,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-
-/*    public void startTasksPlayAudio(String uP, String uE) throws IOException {
-
-
-
-    }*/
 
 
 }

@@ -50,7 +50,7 @@ public class CreateEnglishActivity extends Activity {
     String newFolder = "KrebsFolderSound";      // nazawa folderu do zapisu audio
     String extStorageDirectory = Environment.getExternalStorageDirectory().toString();
     ProgressDialog PD;
-    String url = "http://krebsmethod.cba.pl/insert.php"; // url do skryptu wstawiania nowych rekordow
+    String url = "url PHP script insert"; // url do skryptu wstawiania nowych rekordow
     String polishWordText, englishWordText;// zmienna ktora ma przchowywac napis
     File myNewFolder = new File(extStorageDirectory + sep + newFolder); // nowy folder
 
@@ -244,9 +244,9 @@ public class CreateEnglishActivity extends Activity {
                 try {
                     FTPClient con = null;
                     con = new FTPClient();
-                    con.connect("95.211.80.5");
+                    con.connect("adress FTP");
 
-                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+                    if (con.login("login", "pass")) {
                         con.enterLocalPassiveMode(); // important!
                         con.setFileType(FTP.BINARY_FILE_TYPE);
                         String pData = "/sdcard/KrebsFolderSound/" + id + "polishSound.3gpp";

@@ -16,6 +16,9 @@ import static java.lang.Thread.sleep;
  */
 public class LearnTask implements Runnable {
 
+    /*
+    Odtwarzanie w LeranActivity
+     */
     Thread x;
     private MediaPlayer mediaP = new MediaPlayer();
     private MediaPlayer mediaE = new MediaPlayer();
@@ -45,8 +48,8 @@ public class LearnTask implements Runnable {
         for (int i = 0; i < c.size(); i++) {
 
 
-            String uP = "http://krebsmethod.cba.pl/PolishSound/" + c.get(i) + "polish.3gpp";
-            String uE = "http://krebsmethod.cba.pl/EnglishSound/" + c.get(i) + "english.3gpp";
+            String uP = "url with diretory Polish Words" + c.get(i) + "polish.3gpp";
+            String uE = "url with diretory English Words" + c.get(i) + "english.3gpp";
 
             ConnectForDuration connectForDuration = new
                     ConnectForDuration(uP, uE, mdP, mdE);

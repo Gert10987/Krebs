@@ -42,9 +42,9 @@ public class ConnectForAudioLearn implements Runnable {
 
                     FTPClient con = null; // Utworzenie zmiennej do polaczenia
                     con = new FTPClient();
-                    con.connect("95.211.80.5"); // ustawienie adresu FTP
+                    con.connect("adress FTP"); // ustawienie adresu FTP
 
-                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+                    if (con.login("login", "pass")) {
                         con.enterLocalPassiveMode(); // ustawienie passiveMode
                         con.setFileType(FTP.BINARY_FILE_TYPE); // typ Plikow Binarny
 

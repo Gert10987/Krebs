@@ -38,7 +38,9 @@ import static java.lang.Thread.sleep;
 
 public class LearnActivity extends AppCompatActivity {
 
-
+    /*
+    Klasa odpowiedzialna za Nauke
+     */
     Button buttonLearn;
     private MediaPlayer mediaP = new MediaPlayer();
     private MediaPlayer mediaE = new MediaPlayer();
@@ -48,9 +50,9 @@ public class LearnActivity extends AppCompatActivity {
     TextView zaladowano;
     ProgressDialog PB;
 
-    VisualizerView mVisualizerViewE, mVisualizerViewP;
+    VisualizerView mVisualizerViewE, mVisualizerViewP; //Visualizer dla Polsiego i angieslkiego slowa
 
-    private MediaPlayer mMediaPlayer, mMediaPlayerC;
+    private MediaPlayer mMediaPlayer;
 
     private Visualizer mVisualizerP, mVisualizerE;
 
@@ -69,7 +71,7 @@ public class LearnActivity extends AppCompatActivity {
         mVisualizerViewE = (VisualizerView) findViewById(R.id.vE);
 
 
-        c = getIntent().getStringArrayListExtra("list");
+        c = getIntent().getStringArrayListExtra("list"); // pobranie listy slow
 
         PB = new ProgressDialog(LearnActivity.this);
 
@@ -124,7 +126,7 @@ public class LearnActivity extends AppCompatActivity {
         });
     }
 
-
+    // vizualicja Polskiego slowa
     private void initVisualizerMediaP() {
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -144,12 +146,9 @@ public class LearnActivity extends AppCompatActivity {
                 });
 
 
-
-
-
-
     }
 
+    //Vizualizacja Angielskiego slowa
     private void initVisualizerMediaE() {
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -171,9 +170,6 @@ public class LearnActivity extends AppCompatActivity {
 
 
     private void setupVisualizerforMediaP() {
-
-
-        // Create the Visualizer object and attach it to our media player.
 
 
         mVisualizerP = new Visualizer(mediaP.getAudioSessionId());
@@ -199,8 +195,6 @@ public class LearnActivity extends AppCompatActivity {
     }
 
     private void setupVisualizerforMediaE() {
-
-
 
 
         mVisualizerE = new Visualizer(mediaE.getAudioSessionId());

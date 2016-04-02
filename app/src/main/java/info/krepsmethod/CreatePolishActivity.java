@@ -45,7 +45,7 @@ public class CreatePolishActivity extends Activity {
     String extStorageDirectory = Environment.getExternalStorageDirectory().toString();
     String polishWord;
     File myNewFolder = new File(extStorageDirectory + sep + newFolder);
-    String urlID = "http://krebsmethod.cba.pl/getID.php";
+    String urlID = "url php script getID.php";
     int autoIncNextVal; // nastepna wartosc id
 
     //JSON ************

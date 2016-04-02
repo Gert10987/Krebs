@@ -54,9 +54,9 @@ public class ConnectForDuration implements Runnable {
                     MediaPlayer p = new MediaPlayer();
 
                     con = new FTPClient();
-                    con.connect("95.211.80.5");
+                    con.connect("adress FTP");
 
-                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+                    if (con.login("login", "pass")) {
                         con.enterLocalPassiveMode(); // important!
                         con.setFileType(FTP.BINARY_FILE_TYPE);
 
@@ -103,9 +103,9 @@ public class ConnectForDuration implements Runnable {
                     MediaPlayer p = new MediaPlayer();
 
                     con = new FTPClient();
-                    con.connect("95.211.80.5");
+                    con.connect("adress FTP");
 
-                    if (con.login("xxx@krebsmethod.cba.pl", "dupa.8")) {
+                    if (con.login("login", "pass")) {
                         con.enterLocalPassiveMode(); // important!
                         con.setFileType(FTP.BINARY_FILE_TYPE);
 
